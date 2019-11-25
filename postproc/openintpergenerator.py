@@ -30,8 +30,8 @@ Percentage_Above = 400
 contractType =['CALL','PUT']   
 date_format = '%m/%d/%Y'
 
-ifilepath = './input/'
-ifilestocklist = ifilepath+'StockList.csv'
+ifilepath = './../datacolls/output/'
+ifilestocklist = './../datacolls/input/'+'StockList.csv'
 
 ofilepath = './output/'
 ofilename = ofilepath+'OIPerJump'
