@@ -42,7 +42,7 @@ import sys
 csv.field_size_limit(sys.maxsize)
 
 contractType =['CALL','PUT']
-strikeCount = 20
+strikeCount = 40
 
 date_format = '%m/%d/%y'
 
@@ -101,14 +101,14 @@ def generateTotalStockList():
 ##        print("Number of Stocks in OptionChainList is  : % 2d" %(totalStocks))
 
 def generateStockCSVFiles(index,stockIndex):       
-    stockCsvfilename = ofilepath + stockSymbol[stockIndex]+'_'+stockOptionExpDate[stockIndex]+'_'+contractType[index]+'.csv'
+    stockCsvfilename = ofilepath + stockSymbol[stockIndex]+'_'+contractType[index]+'.csv'
     print(stockSymbol)
     print(stockOptionExpDate)
     print(stockCsvfilename)
     return stockCsvfilename
 
 def getStockCSVFiles(index,stockIndex):       
-    stockCsvfilename = ofilepath + stockSymbol[stockIndex]+'_'+stockOptionExpDate[stockIndex]+'_'+contractType[index]+'.csv'
+    stockCsvfilename = ofilepath + stockSymbol[stockIndex]+'_'+contractType[index]+'.csv'
     return stockCsvfilename
 
 def getStockOptionExpDates(symbol,expDate,index):
@@ -1239,6 +1239,16 @@ def mainloop():
                     data_frame.iloc[countRows-1,countCols-1]= optOpenInterest
                     data_frame.to_csv(ofile,index = False) 
                     
+##    if os.path.exists('OptionsDataBase.json'):
+##        print("file exists")
+##        os.remove('OptionsDataBase.json')
+##        
+##    if os.path.exists('OpenInterest.json'):
+##        print("file exists")
+##        os.remove('OpenInterest.json')
+##    if os.path.exists('OptionStrike.json'):
+##        print("file exists")
+##        os.remove('OptionStrike.json')
 
 mainloop() 
                     
