@@ -42,7 +42,7 @@ import sys
 csv.field_size_limit(sys.maxsize)
 
 contractType =['CALL','PUT']
-strikeCount = 40
+strikeCount = 60
 
 date_format = '%m/%d/%y'
 
@@ -1239,16 +1239,6 @@ def mainloop():
                     data_frame.iloc[countRows-1,countCols-1]= optOpenInterest
                     data_frame.to_csv(ofile,index = False) 
                     
-##    if os.path.exists('OptionsDataBase.json'):
-##        print("file exists")
-##        os.remove('OptionsDataBase.json')
-##        
-##    if os.path.exists('OpenInterest.json'):
-##        print("file exists")
-##        os.remove('OpenInterest.json')
-##    if os.path.exists('OptionStrike.json'):
-##        print("file exists")
-##        os.remove('OptionStrike.json')
 
 mainloop() 
                     
