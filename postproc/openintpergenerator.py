@@ -73,7 +73,7 @@ def generateTotalStockList():
 
 
 def getStockCSVFiles(index,stockIndex):       
-    stockCsvfilename = ifilepath+stockSymbol[stockIndex]+'_'+stockExpDate[stockIndex]+'_'+contractType[index]+'.csv'
+    stockCsvfilename = ifilepath+stockSymbol[stockIndex]+'_'+contractType[index]+'.csv'
     return stockCsvfilename
 
 def createOutputOIJumpFile():
@@ -157,7 +157,7 @@ def jumpinOI(todayOI,yestOI):
                 else:
                     return 0
             elif((int)(TodayOI[0])<(int)(YestOI[0])):
-                value = ((((int)(TodayOI[0]) - (int)(YestOI[0]))/(int)(YestOI[0]))*100)
+                value = ((((int)(YestOI[0]) - (int)(TodayOI[0]))/(int)(TodayOI[0]))*100)
                 if(value > thresold):
 #                    print("value is :",value)
                     return value

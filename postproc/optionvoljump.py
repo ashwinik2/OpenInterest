@@ -177,7 +177,7 @@ def jumpinOV(todayOI,yestOI):
         return 0
 
     elif(((int)(YestOV) ==0) and ((int)(TodayOV) !=0)):
-        if((int)(TodayOV)>(int)(OIthresold) and (int)(YestOV)>(int)(OIthresold)):
+        if((int)(TodayOV)>(int)(OIthresold)):
             if(doProcessOV == 1):
                 if((int)(TodayOV) > (int)(thresold)):
                     value = (((int)(TodayOV)/100)*100)
