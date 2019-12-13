@@ -42,8 +42,10 @@ header = ["CallMI", "PUTM","TOTALMI"]
 TTM =["CALLTM","PUTTM"]
 final_chart_insert_pos = ["A20","K20","T20","AD20","AN20","AX20","BH20","BR20"]
 final_chart_col_loc = ['2','12','22','32','42','52','62','72']
-expdate_chart_insert_pos =["AR20","BR20","EJ20","IF20","LH20","OJ20","SF20"]
-expdate_chart_col_loc =['2','71','141','241','321','401','500']
+#expdate_chart_insert_pos =["AR20","BR20","EJ20","IF20","LH20","OJ20","SF20"]
+expdate_chart_insert_pos =["A20","CV20","GR20","KN20","OJ20","SF20","WB20"]
+#expdate_chart_col_loc =['2','71','141','241','321','401','500']
+expdate_chart_col_loc =['2','101','201','301','401','501','600']
 expdate_chart_y_axis=['MAX_PAIN_CALL','MAX_PAIN_PUT','MAX_PAIN_TOTAL','MONEY_INV_CALL','MONEY_INV_PUT','MONEY_INV_TOTAL','TOTAL_CALL_PUT_TM']
 num_of_chart_per_sheet = 7
 num_headers = 4
@@ -277,10 +279,10 @@ def mainloop():
                             if(contracttype == 0):
                                 m_col = (int)(expdate_chart_col_loc[3])-1
                                 print(sheet_obj.max_column)
-                                if(i == 0):
+                                if(expdate == 0):
                                     cellref=sheet_obj.cell(row=1, column=m_col)
                                     cellref.value=header[0]
-                                    col = cols
+                                    
                                     for item in range(len(strikeprices)):
                                         cellref=sheet_obj.cell(row = 1, column=m_col+item+1)
                                         cellref.value=strikeprices[item]
@@ -302,7 +304,7 @@ def mainloop():
                                 m_col = (int)(expdate_chart_col_loc[4])-1
                                 
                                 print(sheet_obj.max_column)
-                                if(i == 0):
+                                if(expdate == 0):
                                     cellref=sheet_obj.cell(row=1, column=m_col)
                                     cellref.value=header[1]                                 
                                     for item in range(len(strikeprices)):
@@ -435,7 +437,7 @@ def mainloop():
                 cellref=sheet_obj.cell(row = k+2, column=m_cols)                        
                 total = depth[i][j][k]
                 print("depth[i][j][k] is :",depth[i][j][k])
-                cellref.value=total
+                cellref.value=(int)(total)
             m_cols += 1
     
     for i in range(0,num_of_exp):
@@ -457,7 +459,9 @@ def mainloop():
         chart.dataLabels = DataLabelList()
         chart.dataLabels.showVal = True
         chart.set_categories(cats)
-        sheet_obj.add_chart(chart, final_chart_insert_pos[i])    
+        sheet_obj.add_chart(chart, final_chart_insert_pos[i])
+
+        print("len(strike_money_inv) is :",len(strike_money_inv))
     wb_obj.save(ofile)
 mainloop() 
                     
