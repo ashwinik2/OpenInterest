@@ -36,7 +36,7 @@ ifile = ofilepath
 ofilename = ofilepath+'OImax_pain_mp'
 
 header = ["CallMP", "PutMP","TotalMP"]
-expdate_chart_col_loc =['2','71','141','241','321','401','500']
+expdate_chart_col_loc =['2','101','201','301','401','501','600']
 num_headers = 4
 debug = 0
 OI_INDEX = 0
@@ -97,7 +97,7 @@ def mainloop():
     ofile = createoFile()
     if os.path.exists(ofile):
         print("file exists:",ofile)
-        os.remove(ofile)
+       # os.remove(ofile)
         print("File Removed!")
 
     wb_obj = openpyxl.Workbook()
@@ -145,7 +145,7 @@ def mainloop():
             for i in range(0,len(contractType)):
                 depth.append([])
             for expdate in range(0,len(finalOptionExpDateList1)):
-                print("finalOptionExpDateList1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:",finalOptionExpDateList1[item1])
+                print("finalOptionExpDateList1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:",finalOptionExpDateList1[expdate])
                 colCount = 0
                 rowCount = 0
                 colFrom = 0
@@ -199,7 +199,7 @@ def mainloop():
                         strikepriceList = sorted(strikepriceList)
                         print("strikepriceList = sorted(strikepriceList) is :",strikepriceList )
                         
-                        data =[]
+                        rowData =[]
                         
                         columnList= data_frame.columns.tolist()
                         colFrom = countCols-getNumberColsData
@@ -214,8 +214,8 @@ def mainloop():
                                 ent = 0
                                 max_pain = 0                                
                                 for row in range(0,len(CSVOptionSymbolList)):
-                                    strikeexpdate = (float)(getOptionStrikePrice(CSVOptionSymbolList[row]))
-                                    strikeprice = (getOptExpDateFromCSV(CSVOptionSymbolList[row]))
+                                    strikeexpdate = (getOptExpDateFromCSV(CSVOptionSymbolList[row]))
+                                    strikeprice = strikepriceList[stockprice]
                                     strikeprice = (float)(strikeprice)
                                     if((strikeexpdate == finalOptionExpDateList1[expdate])):
                                         ent +=1
@@ -330,28 +330,28 @@ def mainloop():
                     cellref=sheet_obj.cell(row = 1, column=m_col+item)
                     cellref.value=strikeprices[item]
 
-                for i in range(2, m_rows+1):
-                    cellref=sheet_obj.cell(row = i, column=1)
+                for row in range(2, m_rows+1):
+                    cellref=sheet_obj.cell(row = row, column=1)
                     value = cellref.value
-                    cellref=sheet_obj.cell(row = i, column=m_col-1)
+                    cellref=sheet_obj.cell(row = row, column=m_col-1)
                     cellref.value=value
                     callmpvalue = []
                     putmpvalue = []
                     col_index = (int)(expdate_chart_col_loc[0])
                     for item in range(len(strikeprices)):
-                    cellref=sheet_obj.cell(row = m_rows, column=col_index+item)
-                    value = cellref.value
-                    print("callmpvalue is :",callmpvalue)
-                    callmpvalue.append(value)
+                        cellref=sheet_obj.cell(row = row, column=col_index+item)
+                        value = cellref.value
+                        print("callmpvalue is :",callmpvalue)
+                        callmpvalue.append(value)
                     col_index = (int)(expdate_chart_col_loc[1])   
                     for item in range(len(strikeprices)):
-                        cellref=sheet_obj.cell(row = m_rows, column=col_index+item)
+                        cellref=sheet_obj.cell(row = row, column=col_index+item)
                         value = cellref.value
                         print("putmpvalue is :",putmpvalue)
                         putmpvalue.append(value)
                 
                     for i in range(len(strikeprices)):
-                        cellref=sheet_obj.cell(row = m_rows, column=m_col+i)
+                        cellref=sheet_obj.cell(row = row, column=m_col+i)
                         print("callmpvalue and value 2  :",callmpvalue[i],putmpvalue[i]) 
                         total = callmpvalue[i]+putmpvalue[i]
                         cellref.value=total 
