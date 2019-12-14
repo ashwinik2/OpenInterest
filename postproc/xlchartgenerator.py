@@ -13,7 +13,7 @@ from os import path
 
 ofilepath = './output/'
 ifilepath ='./input/'
-ofilename = ofilepath+'OIXlchart'
+ofilename = ofilepath+'OIUPXlchart'
 ifilename = ofilepath+'OIChartInput'
 
 def getiFile():
@@ -34,7 +34,7 @@ def mainloop():
     #initialization and configuration
     row_index = 0
     sheet_count = 0
-    header = ["Date", "OI", "SP", "SV (100K Units)", "OP", "OV"]
+    header = ["Date", "OI", "SP", "SV (100K Units)", "OP", "OV","TotalMoney"]
     num_headers = 5
     line_value = ["!$A$2:$A$", "!$B$2:$B$", "!$C$2:$C$", "!$D$2:$D$", "!$E$2:$E$", "!$F$2:$F$"]
     icsvFileName = getiFile()
@@ -96,7 +96,10 @@ def mainloop():
 
 
                     #outSheet.write_array_formula('G2:G'+str(iFileCountCols) , '{=PRODUCT($B*$E'+'*100)}')
-                    outSheet.write_array_formula('G2:G'+str(iFileCountCols) , '{=PRODUCT($B'+str(iFileCountCols)+',$E'+str(iFileCountCols)+',100)}')
+                    outSheet.write(0, 6, header[6])
+                    for rowIndex in range(2,iFileCountCols+1):
+                        outSheet.write_array_formula('$G'+str(rowIndex) , '{=PRODUCT($B'+str(rowIndex)+',$E'+str(rowIndex)+',100)}')
+                    #outSheet.write_array_formula('G2:G'+str(iFileCountCols) , '{=PRODUCT($B'+str(iFileCountCols)+',$E'+str(iFileCountCols)+',100)}')
 
                     #chart creation 1`
                     chartLinesList = [0, 2, 3, 4]
