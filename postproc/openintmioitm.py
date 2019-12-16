@@ -43,8 +43,9 @@ TTM =["CALLTM","PUTTM"]
 final_chart_insert_pos = ["A20","K20","T20","AD20","AN20","AX20","BH20","BR20"]
 final_chart_col_loc = ['2','12','22','32','42','52','62','72']
 
-expdate_chart_insert_pos =["A20","BR20","EJ20","IF20","LH20","OJ20","SF20"]
-expdate_chart_col_loc =['2','71','141','241','321','401','500']
+expdate_chart_insert_pos =["A20","CV20","GR20","KN20","OJ20","SF20","WB20"]
+#expdate_chart_col_loc =['2','71','141','241','321','401','500']
+expdate_chart_col_loc =['2','101','201','301','401','501','600']
 expdate_chart_y_axis=['MAX_PAIN_CALL','MAX_PAIN_PUT','MAX_PAIN_TOTAL','MONEY_INV_CALL','MONEY_INV_PUT','MONEY_INV_TOTAL','TOTAL_CALL_PUT_TM']
 
 OITM =['CallITM','CallOTM','PutITM','PutOTM']
@@ -233,15 +234,18 @@ def mainloop():
                             print("CSVOptionSymbolList  and length is  :",CSVOptionSymbolList,len(CSVOptionSymbolList))
                         length = len(CSVOptionSymbolList)
 
-                        strikepriceList =[]
+                        strikepriceList = []
+                        strikepricelist =[]
                         for index in range(0,len(CSVOptionSymbolList)):                                    
                             symbolexpdate1 = getOptExpDateFromCSV(CSVOptionSymbolList[index])
                             if(symbolexpdate1 == finalOptionExpDateList1[expdate]):
                                 strikeprice = getOptionStrikePrice(CSVOptionSymbolList[index])
-                                strikepriceList.append(strikeprice)
-                        strikepriceList = removeDuplicateDates(strikepriceList)
-                        strikepriceList = sorted(strikepriceList)
-                        print("strikepriceList = sorted(strikepriceList) is :",strikepriceList )
+                                strikepricelist.append(strikeprice)
+                        
+                        strikepricelist = removeDuplicateDates(strikepricelist)
+                        strikepriceList = sorted(strikepricelist)
+                        strikepriceList.sort(key=float)
+                        print("strikepriceList = sorted(strikepriceList) is ..................:",strikepriceList)
                         
                         rowdata =[]                            
                         columnList= data_frame.columns.tolist()
@@ -268,9 +272,9 @@ def mainloop():
                                         if(ent == 1):
                                             strikeprices.append(strikepriceList[stockprice])
                                         
-                                        data_frame = pd.read_csv(ifile, index_col = False)
-                                        countRows = data_frame.shape[0]
-                                        countCols = data_frame.shape[1]                                        
+##                                        data_frame = pd.read_csv(ifile, index_col = False)
+##                                        countRows = data_frame.shape[0]
+##                                        countCols = data_frame.shape[1]                                        
                                         rowdata = data_frame.iloc[row,colFrom]
                                         if(rowdata == 'U'):
                                             OI =0
@@ -299,8 +303,8 @@ def mainloop():
                                             else:
                                                 SP =(float)(rowdata[SP_INDEX])
 
-                                            if(col == 19):
-                                                print("sp is ......................................... :",SP)
+                                            #if(col == 19):
+                                                #print("sp is ......................................... :",SP)
                                             money_inv = OI*OP*100
                                             money_inv = money_inv/1000
 
@@ -442,10 +446,13 @@ def mainloop():
                     chart.y_axis.title = expdate_chart_y_axis[j]
                     chart.x_axis.title = 'Dates'
                     data = Reference(sheet_obj, min_col=min_cols, min_row=1, max_row=m_rows, max_col=max_cols)
+                    #data = Reference(sheet_obj, min_col=min_cols, min_row=2, max_row=m_rows, max_col=max_cols)
                     cats = Reference(sheet_obj, min_col=(int)(expdate_chart_col_loc[0])-1, min_row=2, max_row=m_rows)
                     chart.add_data(data, titles_from_data=True)
-                    chart.dataLabels = DataLabelList()
-                    chart.dataLabels.showVal = True
+                    #chart.dataLabels = DataLabelList()
+                    #chart.dataLabels.showVal = True
+                    #chart.dataLabels.showSerName = True
+                    #chart.dataLabels.position = "t"
                     chart.set_categories(cats)
                     sheet_obj.add_chart(chart, expdate_chart_insert_pos[j])
 
