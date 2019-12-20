@@ -10,26 +10,18 @@ import os.path
 import datetime
 import xlsxwriter
 from os import path
+import commonapi
 
 ofilepath = './output/'
 ifilepath ='./input/'
-ofilename = ofilepath+'OIUPXlchart'
-ifilename = ofilepath+'OIChartInput'
+ofilename = 0
+ifilename = 0
 
-def getiFile():
-    today = datetime.date.today()
-    today= datetime.datetime.strftime((today), '%m_%d_%Y')
-    stockCsvfilename = ifilename+'_'+today+'.csv'
-    return stockCsvfilename
-
-def createoFile():
-    today = datetime.date.today()
-    today= datetime.datetime.strftime((today), '%m_%d_%Y')
-    stockCsvfilename = ofilename+'_'+today+'.xlsx'
-    return stockCsvfilename
-
-def mainloop():
-
+def mainloop(ifname,ofname):
+    global ifilename
+    global ofilename
+    ifilename = ifname
+    ofilename = ofname
     #############################################################################################################
     #initialization and configuration
     row_index = 0
@@ -37,11 +29,12 @@ def mainloop():
     header = ["Date", "OI", "SP", "SV (100K Units)", "OP", "OV","TotalMoney"]
     num_headers = 5
     line_value = ["!$A$2:$A$", "!$B$2:$B$", "!$C$2:$C$", "!$D$2:$D$", "!$E$2:$E$", "!$F$2:$F$"]
-    icsvFileName = getiFile()
+    iFileName = commonapi.getInputfile(ifilename)
     #############################################################################################################
 
-    iFileName = icsvFileName
-    oFileName = createoFile()
+    print("icsvFileName is :",iFileName)
+    
+    oFileName = commonapi.createoxlFile(ofilename)
     if os.path.exists(oFileName):
         print("file exists:",oFileName)
         os.remove(oFileName)
@@ -53,8 +46,8 @@ def mainloop():
             data_frame = pd.read_csv(iFileName, index_col = False)
             iFileCountCols = data_frame.shape[1]
             iFileCountRows = data_frame.shape[0]
-            print("number of rows:",iFileCountRows)
-            print("number of cols:",iFileCountCols)
+            #print("number of rows:",iFileCountRows)
+            #print("number of cols:",iFileCountCols)
 
             
             with open(iFileName, 'rU') as readFile:
@@ -66,7 +59,7 @@ def mainloop():
 
                 for row in readCSV:
                     optionSymbol = str(row[0])
-                    print("optionSymbol is :",optionSymbol)
+                    #print("optionSymbol is :",optionSymbol)
                     
                     sheet_count =  sheet_count + 1
                     sheet_name = "Sheet" + str(sheet_count) + str(optionSymbol)
@@ -84,9 +77,9 @@ def mainloop():
                     for iFileColIndex in range(1, iFileCountCols):
                         iFileRowDataArray  = str(row[iFileColIndex]).split(":")
                         for item in range(0, num_headers):
-                            print(iFileCountCols)
-                            print(iFileRowDataArray)
-                            print(iFileRowDataArray[item])
+                            #print(iFileCountCols)
+                            #print(iFileRowDataArray)
+                            #print(iFileRowDataArray[item])
                             if item == 2:
                                 #devide by 100k if stock volume to harmnanize the easy viewing all lines in the graph
                                 #because stock volume is relatively large compared to other parameters in the chart
@@ -108,7 +101,7 @@ def mainloop():
                     chart.add_series({"categories": sheet_name + "!$A$2:$A$" +str(iFileCountCols+1), "values": sheet_name + "!$A$2:$A$" + str(iFileCountCols+1)})
 
                     for ofile_row_index in range(0, num_headers+1):
-                        print("iFileCountCols is :",iFileCountCols)
+                        #print("iFileCountCols is :",iFileCountCols)
                         if ofile_row_index in chartLinesList:
                             chart.add_series({"values": sheet_name + line_value[ofile_row_index] +str(iFileCountCols+1), "name": header[ofile_row_index]})
                                          
@@ -121,7 +114,7 @@ def mainloop():
                     chart.add_series({"categories": sheet_name + "!$A$2:$A$" +str(iFileCountCols+1), "values": sheet_name + "!$A$2:$A$" + str(iFileCountCols+1)})
 
                     for ofile_row_index in range(0, num_headers+1):
-                        print("iFileCountCols is :",iFileCountCols)
+                        #print("iFileCountCols is :",iFileCountCols)
                         if ofile_row_index in chartLinesList:
                             chart.add_series({"values": sheet_name + line_value[ofile_row_index] +str(iFileCountCols+1), "name": header[ofile_row_index]})
                                          
@@ -132,8 +125,5 @@ def mainloop():
                 outWorkBook.close()
     else:
         print("File Does not Exists:",iFileName)
-        
-    
-mainloop() 
-                    
-print('done')
+                            
+
