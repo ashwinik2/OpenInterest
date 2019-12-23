@@ -15,16 +15,7 @@ from datetime import timedelta
 import commonapi
 import xlfileinputgenerator
 
-stockSymbol = []
-stockExpDate = []
-todayDate = []   
-
-global totalStocks
-global csvSymbolList
-
 thresold = 50
-getNumberColsData = 20
-Percentage_Above = 400
 money_margin = 20000
 
 contractType =['CALL','PUT']   
@@ -40,13 +31,11 @@ ochartfilename = ofilepath+'OIUPXLChart'
 ichartfilename = ofilepath+'OIChartInput'
 
 
-
 #compares OI today and yest send result if greater than percentage jump thresold
 def jumpinOI(todayrowData,yestrowData):
     global thresold
 
     TodayOI,YestOI = commonapi.getDataOI(todayrowData,yestrowData)
-
     TodayOP,YestOP = commonapi.getDataOP(todayrowData,yestrowData)
   
     if(((int)(YestOI) ==0) and ((int)(TodayOI) ==0)):
@@ -94,22 +83,16 @@ def jumpinOI(todayrowData,yestrowData):
                     else:
                         return 0   
                 else:
-                    return 0
-            
+                    return 0            
             else:
                 return 0
         else:
-                return 0
-        
+                return 0        
     else:
         return 0
 
 
-def mainloop():
-    global csvSymbolList
-    global totalStocks
-    global totalCols
-    global thresold
+def openIntPerCalculatorMain(getNumberColsData,Percentage_OI_Jump):
     
     totalStocks,stockSymbol,stockExpDate = commonapi.generateTotalStockList(ifilestocklist)
     oCSVOIJumpFile = commonapi.createOutputOIJumpFile(ofilename)
@@ -131,7 +114,7 @@ def mainloop():
                 if(index == 0):
                     commonapi.generateDateList(oCSVOIJumpFile,getNumberColsData)                        
                     
-            iCSVFile = commonapi.getStockCSVFiles(contracttype,stockSymbol[index],ifilepath)
+            iCSVFile = commonapi.getStockCSVFile(contracttype,stockSymbol[index],ifilepath)
             
             if os.path.exists(iCSVFile):
                 print("File Exists:",iCSVFile)
@@ -144,7 +127,7 @@ def mainloop():
                 optionSymbol =[]
                 row_index = 0
                 
-                with open(iCSVFile, 'r') as readFile:
+                with open(iCSVFile, 'rU') as readFile:
                     readCSV = csv.reader(readFile)
                     fields = next(readCSV)
                     for row in readCSV:
@@ -153,7 +136,7 @@ def mainloop():
                         
                         OI = jumpinOI(row[todayrowData],row[yestrowData])                        
                         if(OI !=0):
-                            if(OI > Percentage_Above):
+                            if(OI > Percentage_OI_Jump):
                                 
                                 if(countCols == getNumberColsData):
                                     commonapi.processColEqual(oCSVOIJumpFile,data_frame,optionSymbol,row_index,getNumberColsData)                                                                        
@@ -165,9 +148,18 @@ def mainloop():
                         row_index += 1
             else:
                 print("File Does not Exists:",iCSVFile)
-            
-mainloop()
-xlfileinputgenerator.mainloop(ofilename,ochartfilename,ichartfilename)
+                
+if __name__ == "__main__":
+
+    getNumberColsData = 30
+    Percentage_OI_Jump = 400
+##    getNumberColsData = raw_input("Enter number of days data you want : ") 
+##    print(getNumberColsData)
+##    getNumberColsData = (int)(getNumberColsData)
+##    Percentage_OI_Jump = raw_input("Enter what percentage jump in open interest : ")
+##    Percentage_OI_Jump = (int)(Percentage_OI_Jump)
+    openIntPerCalculatorMain(getNumberColsData,Percentage_OI_Jump)
+    xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
                     
-print('done')
+    print('done')
 

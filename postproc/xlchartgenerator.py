@@ -17,7 +17,7 @@ ifilepath ='./input/'
 ofilename = 0
 ifilename = 0
 
-def mainloop(ifname,ofname):
+def geneateOXLChartMain(ifname,ofname):
     global ifilename
     global ofilename
     ifilename = ifname
@@ -46,10 +46,7 @@ def mainloop(ifname,ofname):
             data_frame = pd.read_csv(iFileName, index_col = False)
             iFileCountCols = data_frame.shape[1]
             iFileCountRows = data_frame.shape[0]
-            #print("number of rows:",iFileCountRows)
-            #print("number of cols:",iFileCountCols)
 
-            
             with open(iFileName, 'rU') as readFile:
                 readCSV = csv.reader(readFile)
                 dateRow = next(readCSV)
@@ -59,7 +56,6 @@ def mainloop(ifname,ofname):
 
                 for row in readCSV:
                     optionSymbol = str(row[0])
-                    #print("optionSymbol is :",optionSymbol)
                     
                     sheet_count =  sheet_count + 1
                     sheet_name = "Sheet" + str(sheet_count) + str(optionSymbol)
@@ -77,9 +73,6 @@ def mainloop(ifname,ofname):
                     for iFileColIndex in range(1, iFileCountCols):
                         iFileRowDataArray  = str(row[iFileColIndex]).split(":")
                         for item in range(0, num_headers):
-                            #print(iFileCountCols)
-                            #print(iFileRowDataArray)
-                            #print(iFileRowDataArray[item])
                             if item == 2:
                                 #devide by 100k if stock volume to harmnanize the easy viewing all lines in the graph
                                 #because stock volume is relatively large compared to other parameters in the chart
@@ -92,7 +85,6 @@ def mainloop(ifname,ofname):
                     outSheet.write(0, 6, header[6])
                     for rowIndex in range(2,iFileCountCols+1):
                         outSheet.write_array_formula('$G'+str(rowIndex) , '{=PRODUCT($B'+str(rowIndex)+',$E'+str(rowIndex)+',100)}')
-                    #outSheet.write_array_formula('G2:G'+str(iFileCountCols) , '{=PRODUCT($B'+str(iFileCountCols)+',$E'+str(iFileCountCols)+',100)}')
 
                     #chart creation 1`
                     chartLinesList = [0, 2, 3, 4]

@@ -20,12 +20,6 @@ import sys
 import chartapi
 import commonapi
 
-todayDate = []
-expDate = []
-getNumberColsData = 0
-dates =[]
-num_of_exp = 0
-
 csv.field_size_limit(sys.maxsize)
 
 contractType =['CALL','PUT']
@@ -36,7 +30,7 @@ ofilepath = './output/'
 ifile = ofilepath
 ofilename = ofilepath+'OImax_pain_mp'
 
-MI_header = ["CallMI", "PutMI","TotalMI"]
+money_inv_row_header = ["CallMI", "PutMI","TotalMI"]
 TTM =["CallTM","PutTM"]
 expdate_chart_y_axis=['MONEY_INV_CALL x K','MONEY_INV_PUT x K','MONEY_INV_TOTAL x K']
 OITM =['CallITM','CallOTM','PutITM','PutOTM']
@@ -51,33 +45,30 @@ OI_INDEX = 0
 SP_INDEX = 1
 OP_INDEX = 3
 
-symbol = 0
-num_expiration = 0
-
 #### Initialize the local lists 
 
-def initLocalList(depth,OTM,finalOptionExpDateList):
+def initLocalList(totoalOptionTypeMoneyInv,OTM,finalOptionExpDateList,getNumberColsData):
     for i in range(0,len(finalOptionExpDateList)):
-        depth.append([])
+        totoalOptionTypeMoneyInv.append([])
         for j in range(0,len(contractType)):
-            depth[i].append([])
+            totoalOptionTypeMoneyInv[i].append([])
             for k in range(0,getNumberColsData):
-                depth[i][j].append([])
+                totoalOptionTypeMoneyInv[i][j].append([])
     for i in range(0,len(finalOptionExpDateList)):
         for j in range(0,len(contractType)):
             for k in range(0,getNumberColsData):
                 val = (int)(0)
-                depth[i][j][k] = val
+                totoalOptionTypeMoneyInv[i][j][k] = val
 
     for i in range(0,len(finalOptionExpDateList)):
         OTM.append([])                
         for j in range(0,getNumberColsData):
             OTM[i].append([])
-            for k in range(0,4):
+            for k in range(len(OITM)):
                 OTM[i][j].append([])
     for i in range(0,len(finalOptionExpDateList)):
         for j in range(0,getNumberColsData):
-            for k in range(0,4):
+            for k in range(len(OITM)):
                 val = (int)(0)
                 OTM[i][j][k] = val
                 
@@ -115,14 +106,14 @@ def parseInputRowData(colFrom,data_frame,row):
 
 #### Adding call/put money invested of individual strikeprice to excel sheet
 
-def writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,row,columnList,depth,expdate):
+def writeMoneyInvDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,row,columnList,totoalOptionTypeMoneyInv,expdate):
     
-    if(contracttype == 0):
+    if(contracttype == commonapi.Contracttype['CALL'].value):
         if(row == 1):
-            for i in range(0,3):
+            for i in range(len(money_inv_row_header)):
                 col_index = (int)(expdate_chart_col_loc[i])-1
                 cellref=sheet_obj.cell(row=1, column=col_index)
-                cellref.value=MI_header[i]
+                cellref.value=money_inv_row_header[i]
 
                 col_index = (int)(expdate_chart_col_loc[i])
                 for item in range(len(strikeprices)):
@@ -130,11 +121,11 @@ def writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,ro
                     cellref.value=strikeprices[item]
 
     
-    m_col = (int)(expdate_chart_col_loc[contracttype])-1
+    min_col = (int)(expdate_chart_col_loc[contracttype])-1
     print(sheet_obj.max_column)
     
     current_row_index = row
-    cellref=sheet_obj.cell(row =current_row_index+1, column=m_col)
+    cellref=sheet_obj.cell(row =current_row_index+1, column=min_col)
     cellref.value=columnList
     col_index = (int)(expdate_chart_col_loc[contracttype])
     value = 0
@@ -142,27 +133,27 @@ def writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,ro
         cellref=sheet_obj.cell(row = current_row_index+1, column=col_index+item)
         cellref.value=strike_money_inv[item]
         value += strike_money_inv[item]
-    depth[expdate][contracttype][row-1] = value
+    totoalOptionTypeMoneyInv[expdate][contracttype][row-1] = value
 
-    return depth
+    return totoalOptionTypeMoneyInv
 
 #### Adding total call/put money invested of individual strikeprice to excel sheet
 
-def writeTotalMoneyInvPaintoXl(sheet_obj,strikeprices):
+def writeTotalMoneyInvDatatoXl(sheet_obj,strikeprices):
         max_rows = sheet_obj.max_row            
         min_col = (int)(expdate_chart_col_loc[2])-1
 
         cellref=sheet_obj.cell(row=1, column=min_col)
-        cellref.value=MI_header[2]
+        cellref.value=money_inv_row_header[2]
         
         for item in range(len(strikeprices)):
             cellref=sheet_obj.cell(row = 1, column=min_col+item+1)
             cellref.value=strikeprices[item]
 
-        for i in range(2, max_rows+1):
-            cellref=sheet_obj.cell(row = i, column=(int)(expdate_chart_col_loc[0])-1)
+        for row in range(2, max_rows+1):
+            cellref=sheet_obj.cell(row = row, column=(int)(expdate_chart_col_loc[0])-1)
             value = cellref.value
-            cellref=sheet_obj.cell(row = i, column=min_col)
+            cellref=sheet_obj.cell(row = row, column=min_col)
             cellref.value=value
             
             callvalue = []
@@ -170,18 +161,18 @@ def writeTotalMoneyInvPaintoXl(sheet_obj,strikeprices):
 
             col_index = (int)(expdate_chart_col_loc[0])
             for item in range(len(strikeprices)):
-                cellref=sheet_obj.cell(row = i, column=col_index+item)
+                cellref=sheet_obj.cell(row = row, column=col_index+item)
                 value = cellref.value
                 callvalue.append(value)                
                 
             col_index = (int)(expdate_chart_col_loc[1])   
             for item in range(len(strikeprices)):
-                cellref=sheet_obj.cell(row = i, column=col_index+item)
+                cellref=sheet_obj.cell(row = row, column=col_index+item)
                 value = cellref.value
                 putvalue.append(value)
             
             for item in range(len(strikeprices)):
-                cellref=sheet_obj.cell(row = i, column=min_col+item+1)                        
+                cellref=sheet_obj.cell(row = row, column=min_col+item+1)                        
                 total = callvalue[item]+putvalue[item]
                 cellref.value=total
 
@@ -196,16 +187,16 @@ def addSheetToXl(wb_obj,symbol):
         wb_obj.create_sheet(symbol)
 
 #writing call/put total money inv to last sheet "ALL_MICP"
-def writeCPMoneyInvToCPMISheet(sheet_obj,num_of_exp,depth):
+def writeCPMoneyInvToCPMISheet(sheet_obj,number_of_expiration,totoalOptionTypeMoneyInv,getNumberColsData,datesList):
 
     cellref = sheet_obj.cell(row = (int)(final_chart_col_loc[0])-1,column = 1)
     cellref.value = "MICP"
     
-    for item in range(len(dates)):
+    for item in range(len(datesList)):
         cellref = sheet_obj.cell(row = item+(int)(final_chart_col_loc[0]),column = 1)
-        cellref.value = dates[item]
+        cellref.value = datesList[item]
        
-    for i in range(0,num_of_exp):
+    for i in range(0,number_of_expiration):
         min_cols = (int)(final_chart_col_loc[i])
         max_cols =min_cols+1
         for j in range(len(TTM)):
@@ -213,64 +204,95 @@ def writeCPMoneyInvToCPMISheet(sheet_obj,num_of_exp,depth):
             cellref = sheet_obj.cell(row = 1,column =min_cols)
             cellref.value = TTM[j]            
             
-        m_cols = (int)(final_chart_col_loc[i])
-        for j in range(0,2):            
+        min_cols = (int)(final_chart_col_loc[i])
+        for j in range(len(TTM)):            
             for k in range(0,getNumberColsData): 
-                cellref=sheet_obj.cell(row = k+2, column=m_cols)                        
-                total = depth[i][j][k]
+                cellref=sheet_obj.cell(row = k+2, column=min_cols)                        
+                total = totoalOptionTypeMoneyInv[i][j][k]
                 cellref.value=(int)(total)
-            m_cols += 1
+            min_cols += 1
 
 
 #writing call/put OTM,ITM inv to last sheet "ALL_MICP"
-def writeCPIOTMtoCPMISheet(OTM,sheet_obj,num_of_exp):
+def writeCPIOTMtoCPMISheet(OTM,sheet_obj,number_of_expiration,getNumberColsData,datesList):
     
     min_rows = 42
     cellref = sheet_obj.cell(row = min_rows,column =1)
     cellref.value = "Dates"
 
-    for item in range(len(dates)):
+    for item in range(len(datesList)):
         cellref = sheet_obj.cell(row = item+min_rows+1,column = 1)
-        cellref.value = dates[item]
+        cellref.value = datesList[item]
 
-    for i in range(0,num_of_exp):
+    for i in range(0,number_of_expiration):
         min_cols = (int)(final_OTM_chart_col_loc[i])
         max_cols =min_cols+3
         for j in range(0,4):
             cellref = sheet_obj.cell(row= min_rows,column =min_cols+j)
             cellref.value = OITM[j]
-        m_cols = (int)(final_OTM_chart_col_loc[i])   
+            
+        min_cols = (int)(final_OTM_chart_col_loc[i])   
         for row in range(0,getNumberColsData):               
             for col in range(0,4):
-                cellref=sheet_obj.cell(row = row+min_rows+1, column=m_cols+col)
+                cellref=sheet_obj.cell(row = row+min_rows+1, column=min_cols+col)
                 total = OTM[i][row][col]
                 cellref.value=(int)(total)
 
-        
-def mainloop(Symbol,number_expiration,getNumberColsdata):
-    global symbol
-    global num_expiration
-    global getNumberColsData
-    symbol = (str)(Symbol)
-    
 
-    num_expiration = number_expiration
-    getNumberColsData = getNumberColsdata
+def getStrikePriceMoneyInv(strikepriceList,stockprice,strikePriceFromCSV,row,OptionExpDate,colFrom,data_frame,contracttype,money_inv,col,OTM,expdate):
+    strikeexpdate = commonapi.getOptExpDateFromCSV(strikePriceFromCSV[row])
+    strikeprice = (float)(commonapi.getOptionStrikePrice(strikePriceFromCSV[row]))
+    strikeprice = (float)(strikeprice)
+
+    if((strikeexpdate == OptionExpDate) and ((float)(strikepriceList[stockprice]) == strikeprice)):
+        strikePrice = commonapi.getOptionStrikePrice(strikePriceFromCSV[row])                        
+        stockPrice = strikeprice
+        
+        stockPrice = (float)(stockPrice)
+        strikePrice = (float)(strikePrice)
+        OI,OP,SP= parseInputRowData(colFrom,data_frame,row)
+
+        money_inv = OI*OP*100
+        money_inv = money_inv/1000
+
+        if(contracttype == commonapi.Contracttype['CALL'].value):
+            if(SP > strikeprice):
+                value = OTM[expdate][col][0]
+                value += money_inv 
+                OTM[expdate][col][0] = value
+            else:
+                value = OTM[expdate][col][1]
+                value += money_inv 
+                OTM[expdate][col][1] = value
+
+        if(contracttype == commonapi.Contracttype['PUT'].value):
+            if(SP < strikeprice):
+                value = OTM[expdate][col][2]
+                value += money_inv 
+                OTM[expdate][col][2] = value
+            else:
+                value = OTM[expdate][col][3]
+                value += money_inv 
+                OTM[expdate][col][3] = value
+    return money_inv,OTM
+
+def money_inv(Symbol,number_of_expiration,getNumberColsData):
+    symbol = (str)(Symbol)
     sheet_count = 0
     finalOptionExpDateList =[]
-    depth = [[[]]]
+    totoalOptionTypeMoneyInv = [[[]]]
     OTM = [[[]]]
+    datesList =[]
     
-    ofile = commonapi.createoFile(symbol,ofilename)    
-    wb_obj = openpyxl.load_workbook(ofile)
+    oxlfile = commonapi.getoFile(symbol,ofilename)    
+    wb_obj = openpyxl.load_workbook(oxlfile)
     sheets = wb_obj.sheetnames
         
-    ifile =  commonapi.getStockCSVFiles(0,symbol,ifilepath)
-    data_frame = pd.read_csv(ifile, index_col = False)
-    finalOptionExpDateList = commonapi.getExpDatesListFromCSV(data_frame,num_expiration)
+    istockCSVfile =  commonapi.getStockCSVFile(0,symbol,ifilepath)
+    data_frame = pd.read_csv(istockCSVfile, index_col = False)
+    finalOptionExpDateList = commonapi.getExpDatesListFromCSV(data_frame,number_of_expiration)
     
-    num_of_exp = len(finalOptionExpDateList)
-    initLocalList(depth,OTM,finalOptionExpDateList)
+    initLocalList(totoalOptionTypeMoneyInv,OTM,finalOptionExpDateList,getNumberColsData)
 
 #Loop around num of expiration x contracttype x getNumberColsData x strikeprices
                     
@@ -285,80 +307,41 @@ def mainloop(Symbol,number_expiration,getNumberColsdata):
             del strikeprices[:]
             del strike_money_inv[:]
             
-            if(contracttype == 0):
+            if(contracttype == commonapi.Contracttype['CALL'].value):
                  sym = 'All_Exp_CPMI'
                  addSheetToXl(wb_obj,sym)
             sheet_obj = wb_obj[sheets[expdate]]
             sheet_obj_ref = sheet_obj
  
-            ifile =  commonapi.getStockCSVFiles(contracttype,symbol,ifilepath)
-            if os.path.exists(ifile):
+            istockCSVfile =  commonapi.getStockCSVFile(contracttype,symbol,ifilepath)
+            if os.path.exists(istockCSVfile):
                 print("File Exists")
-                data_frame,columnList,colFrom,CSVOptionSymbolList = commonapi.getDataFrame(ifile,getNumberColsData)
+                data_frame,columnList,colFrom,strikePriceFromCSV = commonapi.getDataFrame(istockCSVfile,getNumberColsData)
 
                 strikepriceList = []
                 strikepriceList = commonapi.strikePricesFromCSV(finalOptionExpDateList[expdate],data_frame)
+                strikeprices = strikepriceList
                 
                 for col in range(0,getNumberColsData):                    
-                    del strikeprices[:]
                     del strike_money_inv[:]
                     
                     for stockprice in range(0,len(strikepriceList)):
-                        ent = 0
                         money_inv = 0
                         
-                        for row in range(0,len(CSVOptionSymbolList)):
-                            strikeexpdate = commonapi.getOptExpDateFromCSV(CSVOptionSymbolList[row])
-                            strikeprice = (float)(commonapi.getOptionStrikePrice(CSVOptionSymbolList[row]))
-                            strikeprice = (float)(strikeprice)
-                            
-                            if((strikeexpdate == finalOptionExpDateList[expdate]) and ((float)(strikepriceList[stockprice]) == strikeprice)):
-                                ent +=1
-                                if(ent == 1):
-                                    strikeprices.append(strikeprice)
-                                       
-                                strikePrice = commonapi.getOptionStrikePrice(CSVOptionSymbolList[row])                        
-                                stockPrice = strikeprice
-                                
-                                stockPrice = (float)(stockPrice)
-                                strikePrice = (float)(strikePrice)
-                                OI,OP,SP= parseInputRowData(colFrom,data_frame,row)
-
-                                money_inv = OI*OP*100
-                                money_inv = money_inv/1000
-
-                                if(contracttype == 0):
-                                    if(SP > strikeprice):
-                                        value = OTM[expdate][col][0]
-                                        value += money_inv 
-                                        OTM[expdate][col][0] = value
-                                    else:
-                                        value = OTM[expdate][col][1]
-                                        value += money_inv 
-                                        OTM[expdate][col][1] = value
-
-                                if(contracttype == 1):
-                                    if(SP < strikeprice):
-                                        value = OTM[expdate][col][2]
-                                        value += money_inv 
-                                        OTM[expdate][col][2] = value
-                                    else:
-                                        value = OTM[expdate][col][3]
-                                        value += money_inv 
-                                        OTM[expdate][col][3] = value
-                                    
-                                   
+                        for row in range(0,len(strikePriceFromCSV)):
+                            money_inv,OTM = getStrikePriceMoneyInv(strikepriceList,stockprice,strikePriceFromCSV,row,finalOptionExpDateList[expdate],colFrom,data_frame,contracttype,money_inv,col,OTM,expdate)
+                                                                       
                         strike_money_inv.append(money_inv)
                         
              #### Adding call max pain of individual strikeprice to excel sheet                            
-                    depth = writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,col+1,columnList[colFrom],depth,expdate)
-                    if(expdate == 0 and contracttype==0 ):
-                        dates.append(columnList[colFrom])
+                    totoalOptionTypeMoneyInv = writeMoneyInvDataToXl(contracttype,sheet_obj,strikeprices,strike_money_inv,col+1,columnList[colFrom],totoalOptionTypeMoneyInv,expdate)
+                    if(expdate == 0 and contracttype == commonapi.Contracttype['CALL'].value ):
+                        datesList.append(columnList[colFrom])
                     colFrom += 1
                     
-        print("len(dates) and dates  is :",len(dates),dates)
+        print("len(dates) and dates  is :",len(datesList),datesList)
         #### Calculating Total money invested of call and put then adding data to excel sheet
-        writeTotalMoneyInvPaintoXl(sheet_obj_ref,strikepriceList)             
+        writeTotalMoneyInvDatatoXl(sheet_obj_ref,strikeprices)             
 
         ### call chartapi to insert chart
         chartapi.insertLineChart(sheet_obj_ref,strikeprices,symbol,finalOptionExpDateList[expdate],expdate_chart_y_axis,expdate_chart_col_loc,expdate_chart_insert_pos)
@@ -366,19 +349,17 @@ def mainloop(Symbol,number_expiration,getNumberColsdata):
     sheet_obj = wb_obj["All_Exp_CPMI"]
     
     #writing call/put total money inv to last sheet "ALL_MICP"
-    writeCPMoneyInvToCPMISheet(sheet_obj,num_of_exp,depth)
+    writeCPMoneyInvToCPMISheet(sheet_obj,number_of_expiration,totoalOptionTypeMoneyInv,getNumberColsData,datesList)
 
     #Insert chart from total money call/put data
-    chartapi.insertTotalMoneyCPChart(sheet_obj,num_of_exp,symbol,finalOptionExpDateList,final_chart_col_loc)
+    chartapi.insertTotalMoneyCPChart(sheet_obj,number_of_expiration,symbol,finalOptionExpDateList,final_chart_col_loc)
 
     #writing call/put OTM,ITM to last sheet "ALL_MICP"
-    writeCPIOTMtoCPMISheet(OTM,sheet_obj,num_of_exp)
+    writeCPIOTMtoCPMISheet(OTM,sheet_obj,number_of_expiration,getNumberColsData,datesList)
 
     #Insert chart from OTM,ITM call/put data
-    chartapi.insertCPIOMchartToCPMISheet(sheet_obj,symbol,finalOptionExpDateList,num_of_exp,final_OTM_chart_col_loc,getNumberColsData)
+    chartapi.insertCPIOMchartToCPMISheet(sheet_obj,symbol,finalOptionExpDateList,number_of_expiration,final_OTM_chart_col_loc,getNumberColsData)
  
-    wb_obj.save(ofile)
-    
-#mainloop(Symbol,number_expiration) 
+    wb_obj.save(oxlfile)
                     
 print('done')

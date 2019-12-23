@@ -8,6 +8,7 @@ from datetime import date
 from datetime import datetime
 import time
 import os
+import sys
 import os.path
 import datetime
 from os import path
@@ -17,14 +18,6 @@ from datetime import timedelta
 import chartapi
 import openintmi
 import commonapi
-
-import sys
-
-endpoint = r"https://api.tdameritrade.com/v1/marketdata/chains"
-todayDate = []
-expDate = []
-getNumberColsData = 20
-
 csv.field_size_limit(sys.maxsize)
 
 contractType =['CALL','PUT']
@@ -32,10 +25,9 @@ ifilepath = './../datacolls/output/'
 ifilestocklist = './../datacolls/input/'+'StockList.csv'
 
 ofilepath = './output/'
-ifile = ofilepath
 ofilename = ofilepath+'OImax_pain_mp'
 
-MP_header = ["CallMP", "PutMP","TotalMP"]
+maxpain_row_header = ["CallMP", "PutMP","TotalMP"]
 expdate_chart_y_axis=['MAX_PAIN_CALL x 100','MAX_PAIN_PUT x 100 ','MAX_PAIN_TOTAL x 100']
 expdate_chart_col_loc =['2','101','201']
 expdate_chart_insert_pos =["A24","CV24","GR24"]
@@ -44,11 +36,6 @@ expdate_chart_insert_pos1 =["A40","CV40","GR40"]
 debug = 0
 OI_INDEX = 0
 SP_INDEX = 1
-
-symbol = raw_input("Enter symbol :") 
-print(symbol) 
-num_expiration = raw_input("Enter number of expiration dates data you want : ") 
-print(num_expiration) 
 
 #### Parsing the row cell data
 def parseInputRowData(colFrom,data_frame,row):
@@ -72,12 +59,12 @@ def parseInputRowData(colFrom,data_frame,row):
     
 #### Adding call/put max pain of individual strikeprice to excel sheet
 def writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strikeprices_max_pain,row,dateData):    
-    if(contracttype == 0):
+    if(contracttype == commonapi.Contracttype.CALL.value):
         if(row == 1):
-            for i in range(0,3):
+            for i in range(len(maxpain_row_header)):
                 col_index = (int)(expdate_chart_col_loc[i])-1
                 cellref=sheet_obj.cell(row=1, column=col_index)
-                cellref.value=MP_header[i]
+                cellref.value=maxpain_row_header[i]
 
                 col_index = (int)(expdate_chart_col_loc[i])
                 for item in range(len(strikeprices)):
@@ -132,32 +119,66 @@ def addSheetToXl(wb_obj,symbol,sheetIndex,finalOptionExpDateList):
                     
     if not sheet_name in wb_obj.sheetnames:
         wb_obj.create_sheet(index = sheetIndex , title = sheet_name)
-            
-def mainloop():
+
+
+def getStrikePriceMaxPain(strikepriceList,stockprice,strikePriceFromCSV,row,OptionExpDate,colFrom,data_frame,contracttype,max_pain):
+    strikeexpdate = commonapi.getOptExpDateFromCSV(strikePriceFromCSV[row])
+    strikeprice = strikepriceList[stockprice]
+
+    if(strikeexpdate == OptionExpDate):
+        strikePrice = commonapi.getOptionStrikePrice(strikePriceFromCSV[row])                        
+        stockPrice = strikeprice
+    
+        stockPrice = (float)(stockPrice)
+        strikePrice = (float)(strikePrice)
+        OI = parseInputRowData(colFrom,data_frame,row)
+        
+        if(contracttype == commonapi.Contracttype.CALL.value):
+            if(stockPrice > strikePrice):                                           
+               maxpain = abs(stockPrice-strikePrice)
+               max_pain +=maxpain*OI
+            elif(stockPrice < strikePrice):
+               max_pain += 0
+            else:
+               if(stockPrice == strikePrice):
+                    max_pain += 0
+               else:
+                    max_pain += 0
+
+        if(contracttype == commonapi.Contracttype.PUT.value):
+            if(stockPrice < strikePrice):
+               maxpain = abs(stockPrice-strikePrice)
+               max_pain += maxpain*OI
+            elif(stockPrice > strikePrice):
+                max_pain += 0 
+            else:
+                if(stockPrice == strikePrice):
+                    max_pain += 0
+                else:
+                    max_pain += 0
+    return max_pain
+                           
+def maxpain(symbol,num_expiration,getNumberColsData):
 
     sheet_count = 0
-    rows = 0
-    depth = [[]]
     finalOptionExpDateList =[]
+    print("getNumberColsData,num_expiration is :",getNumberColsData,num_expiration)
     
-    ofile = commonapi.createoFile(symbol,ofilename)
-    if os.path.exists(ofile):
-        print("file exists:",ofile)
-        os.remove(ofile)
+    oxlfile = commonapi.createoFile(symbol,ofilename)
+    if os.path.exists(oxlfile):
+        print("file exists:",oxlfile)
+        os.remove(oxlfile)
         print("File Removed!")
     
-    if os.path.exists(ofile):
-        wb_obj = openpyxl.load_workbook(ofile)
-        print("File Exists:",ofile)       
+    if os.path.exists(oxlfile):
+        wb_obj = openpyxl.load_workbook(oxlfile)
+        print("File Exists:",oxlfile)       
     else:
-        print("File does not Exists :",ofile)
+        print("File does not Exists :",oxlfile)
         wb_obj = openpyxl.Workbook()
-        
-    for i in range(0,len(contractType)):
-        depth.append([])
 
-    ifile =  commonapi.getStockCSVFiles(0,symbol,ifilepath)
-    data_frame = pd.read_csv(ifile, index_col = False)
+    istockCSVfile =  commonapi.getStockCSVFile(0,symbol,ifilepath)
+    data_frame = pd.read_csv(istockCSVfile, index_col = False)
     finalOptionExpDateList = commonapi.getExpDatesListFromCSV(data_frame,num_expiration)
 
 #Loop around num of expiration x contracttype x getNumberColsData x strikeprices
@@ -165,97 +186,64 @@ def mainloop():
         colFrom = 0
         strikeprices = []
         strikeprices_max_pain = []
-
-        del depth[0][:]
-        del depth[1][:]        
         
         for contracttype in range(len(contractType)):
             del strikeprices[:]
             del strikeprices_max_pain[:]
             data_frame = 0
 
-            if(contracttype == 0):
+            if(contracttype == commonapi.Contracttype['CALL'].value):
                 addSheetToXl(wb_obj,symbol,expdate,finalOptionExpDateList[expdate])
                                 
             sheets = wb_obj.sheetnames
             sheet_obj = wb_obj[sheets[expdate]]
 
-            ifile =  commonapi.getStockCSVFiles(contracttype,symbol,ifilepath)
+            istockCSVfile =  commonapi.getStockCSVFile(contracttype,symbol,ifilepath)
          
-            if os.path.exists(ifile):
+            if os.path.exists(istockCSVfile):
                 print("File Exists")
-                data_frame,columnList,colFrom,CSVOptionSymbolList = commonapi.getDataFrame(ifile,getNumberColsData)
+                data_frame,columnList,colFrom,strikePriceFromCSV = commonapi.getDataFrame(istockCSVfile,getNumberColsData)
 
                 strikepriceList = []
                 strikepriceList = commonapi.strikePricesFromCSV(finalOptionExpDateList[expdate],data_frame)
+                strikeprices = strikepriceList
                 
-                for i in range(0,getNumberColsData):
-                    del strikeprices[:]
+                for col in range(0,getNumberColsData):                    
                     del strikeprices_max_pain[:]
                     
                     for stockprice in range(0,len(strikepriceList)):
-                        ent = 0
                         max_pain = 0
                         
-                        for row in range(0,len(CSVOptionSymbolList)):
-                            strikeexpdate = commonapi.getOptExpDateFromCSV(CSVOptionSymbolList[row])
-                            strikeprice = strikepriceList[stockprice]
-                                
-                            if((strikeexpdate == finalOptionExpDateList[expdate])):
-                                ent +=1
-                                if(ent == 1):
-                                    strikeprices.append(strikeprice)
-                                strikePrice = commonapi.getOptionStrikePrice(CSVOptionSymbolList[row])                        
-                                stockPrice = strikeprice
-                                
-                                stockPrice = (float)(stockPrice)
-                                strikePrice = (float)(strikePrice)
-                                OI = parseInputRowData(colFrom,data_frame,row)
-                                
-                                if(contracttype == 0):
-                                    if(stockPrice > strikePrice):                                           
-                                       maxpain = abs(stockPrice-strikePrice)
-                                       max_pain +=maxpain*OI
-                                    elif(stockPrice < strikePrice):
-                                       max_pain += 0
-                                    else:
-                                       if(stockPrice == strikePrice):
-                                            max_pain += 0
-                                       else:
-                                            max_pain += 0
-
-                                if(contracttype == 1):
-                                    if(stockPrice < strikePrice):
-                                       maxpain = abs(stockPrice-strikePrice)
-                                       max_pain += maxpain*OI
-                                    elif(stockPrice > strikePrice):
-                                       max_pain += 0 
-                                    else:
-                                        if(stockPrice == strikePrice):
-                                            max_pain += 0
-                                        else:
-                                            max_pain += 0                                
-                                                                                                                                                    
+                        for row in range(0,len(strikePriceFromCSV)):
+                            max_pain = getStrikePriceMaxPain(strikepriceList,stockprice,strikePriceFromCSV,row,finalOptionExpDateList[expdate],colFrom,data_frame,contracttype,max_pain)                                  
+                                                                                                                                                   
                         strikeprices_max_pain.append(max_pain)
-                        depth[contracttype].append(max_pain)
                         
      #### Adding call max pain of individual strikeprice to excel sheet
-                    row = i+1
+                    row = col+1
                     writeMaxPainDataToXl(contracttype,sheet_obj,strikeprices,strikeprices_max_pain,row,columnList[colFrom])
                     colFrom += 1                                  
 
     #### Calculating Total Max Pain of call and put then adding data to excel sheet
-        writeTotalMaxPaintoXl(sheet_obj,strikepriceList)
+        writeTotalMaxPaintoXl(sheet_obj,strikeprices)
 
     ### call chartapi to insert chart
         chartapi.insertLineChart(sheet_obj,strikeprices,symbol,finalOptionExpDateList[expdate],expdate_chart_y_axis,expdate_chart_col_loc,expdate_chart_insert_pos)
-        #chartapi.insertLineChart1(sheet_obj,strikeprices,symbol,finalOptionExpDateList[expdate],expdate_chart_y_axis,expdate_chart_col_loc,expdate_chart_insert_pos1)
         
-    wb_obj.save(ofile)
-    
-mainloop()
+    wb_obj.save(oxlfile)
+                           
+if __name__ == "__main__":
+    symbol = raw_input("Enter symbol :") 
+    print(symbol) 
+##    num_expiration = raw_input("Enter number of expiration dates data you want : ") 
+##    print(num_expiration)
+##    getNumberColsData = raw_input("Enter number of days data you want : ") 
+##    print(getNumberColsData)
+    num_expiration = 8
+    getNumberColsData = 20
+                           
+    maxpain(symbol,num_expiration,getNumberColsData)
 
-#call openint money inv py 
-openintmi.mainloop(symbol,num_expiration,getNumberColsData)
+    #call openint money inv py 
+    openintmi.money_inv(symbol,num_expiration,getNumberColsData)
                     
-print('done')

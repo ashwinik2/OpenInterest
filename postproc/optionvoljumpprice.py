@@ -15,22 +15,9 @@ from datetime import timedelta
 import xlfileinputgenerator
 import commonapi
 
-stockSymbol = []
-stockExpDate = []
-stockStrikeprice = []
-todayDate = []
-stockSymbolList  = [] 
-stockExpDatesList  = []  
-
-global totalStocks
-global csvSymbolList
-global stockprice
-global loadopenInterest  
 
 thresold = 50
 OIthresold = 50
-getNumberColsData = 20
-Percentage_Above = 400
 Diff_Percentage_Above = 200
 money_margin = 20000
 
@@ -46,10 +33,8 @@ ochartfilename = ofilepath+'OVUPXLChart'
 ichartfilename = ofilepath+'OVChartInput'
 
 
-
-
 # process the diff between Today OI and Today OV
-def getDiff(TodayOV,TodayOI):
+def getPercentage(TodayOV,TodayOI):
     if((int)(TodayOV)>(int)(OIthresold) and (int)(TodayOI)>(int)(OIthresold)):
         if((int)(TodayOV)>(int)(TodayOI)):
             value = ((((int)(TodayOV) - (int)(TodayOI))/(int)(TodayOI))*100)
@@ -66,13 +51,9 @@ def jumpinOV(todayrowData,yestrowData):
     global thresold    
     doProcessOV = 0
     
-    TodayOI,YestOI = commonapi.getDataOI(todayrowData,yestrowData)
-    
+    TodayOI,YestOI = commonapi.getDataOI(todayrowData,yestrowData)    
     TodayOV,YestOV = commonapi.getDataOV(todayrowData,yestrowData)    
-    #print("TodayOV and YestOV and TodayOI is :",TodayOV,YestOV,TodayOI)
-
     TodayOP,YestOP = commonapi.getDataOP(todayrowData,yestrowData)
-    #print("TodayOV and YestOV is :",TodayOP,YestOP)
      
     if((int)(TodayOI) != 0 and (int)(YestOI) !=0):
         if((int)(TodayOI)>(int)(OIthresold)):
@@ -101,7 +82,7 @@ def jumpinOV(todayrowData,yestrowData):
                 if((int)(TodayOV) > (int)(thresold)):
                     value = (((int)(TodayOV)/100)*100)
                     if(value > thresold):
-                        Process = getDiff(TodayOV,TodayOI)
+                        Process = getPercentage(TodayOV,TodayOI)
                         if(Process == 1):
                             moneyinv = (int)((float)(TodayOI)*(float)(TodayOP)*100)
                             if(moneyinv > money_margin):
@@ -129,7 +110,7 @@ def jumpinOV(todayrowData,yestrowData):
                 elif((int)(TodayOV)>(int)(YestOV)):
                     value = ((((int)(TodayOV) - (int)(YestOV))/(int)(YestOV))*100)
                     if(value > thresold):
-                        Process = getDiff(TodayOV,TodayOI)
+                        Process = getPercentage(TodayOV,TodayOI)
                         if(Process == 1):
                             moneyinv = (int)((float)(TodayOI)*(float)(TodayOP)*100)
                             if(moneyinv > money_margin):
@@ -155,11 +136,7 @@ def jumpinOV(todayrowData,yestrowData):
 
 
 #main loop
-def mainloop():
-    global csvSymbolList
-    global totalStocks
-    global totalCols
-    global thresold
+def processOptionVolumeJumpMain(getNumberColsData,Percentage_OV_Jump):
     
     totalStocks,stockSymbol,stockExpDate = commonapi.generateTotalStockList(ifilestocklist)
     oCSVOIJumpFile = commonapi.createOutputOIJumpFile(ofilename)
@@ -183,7 +160,7 @@ def mainloop():
                 if(index == 0):
                     commonapi.generateDateList(oCSVOIJumpFile,getNumberColsData)                        
                     
-            iCSVFile = commonapi.getStockCSVFiles(contracttype,stockSymbol[index],ifilepath)
+            iCSVFile = commonapi.getStockCSVFile(contracttype,stockSymbol[index],ifilepath)
             
             if os.path.exists(iCSVFile):
                 print("File Exists:",iCSVFile)
@@ -203,10 +180,9 @@ def mainloop():
                         optionSymbol = [str(row[0])]
                         
                         OV = jumpinOV(row[todayrowData],row[yestrowData])
-                        #print("OV IS MAIN  :",OV)
+                        
                         if(OV != 0):                            
-                            if(OV >= Percentage_Above):
-                                print("OV IS MAIN2  :",OV)
+                            if(OV >= Percentage_OV_Jump):
                                 if(countCols == getNumberColsData):
                                     commonapi.processColEqual(oCSVOIJumpFile,data_frame,optionSymbol,row_index,getNumberColsData)                                                                        
                                 elif(countCols > getNumberColsData and countCols != getNumberColsData ):
@@ -218,8 +194,17 @@ def mainloop():
             else:
                 print("File Does not Exists:",iCSVFile)
                 
-mainloop()
-xlfileinputgenerator.mainloop(ofilename,ochartfilename,ichartfilename)
-                    
-print('done')
+if __name__ == "__main__":
+
+    getNumberColsData = 20
+    Percentage_OV_Jump = 400
+##    getNumberColsData = raw_input("Enter number of days data you want : ") 
+##    print(getNumberColsData)
+##    getNumberColsData = (int)(getNumberColsData)
+##    Percentage_OV_Jump = raw_input("Enter what percentage jump in open interest : ")
+##    Percentage_OV_Jump = (int)(Percentage_OV_Jump)
+    processOptionVolumeJumpMain(getNumberColsData,Percentage_OV_Jump)
+    xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
+             
+    print('done')
 

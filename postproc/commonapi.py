@@ -12,19 +12,31 @@ import os.path
 import datetime
 from os import path
 from datetime import timedelta
+import enum
 
 import sys
 csv.field_size_limit(sys.maxsize)
 contractType =['CALL','PUT']
 debug = 0
 
+#declare enums for CALL,PUT
+class Contracttype(enum.Enum):
+    CALL = 0
+    PUT = 1
 #return stockCsvfile
-def getStockCSVFiles(index,symbol,ifilepath):       
+def getStockCSVFile(index,symbol,ifilepath):       
     stockCsvfilename = ifilepath + symbol+'_'+contractType[index]+'.csv'
     return stockCsvfilename
 
 #return output stockCsvfile
 def createoFile(symbol,ofilename):
+    today = datetime.date.today()
+    today= datetime.datetime.strftime((today), '%m_%d_%Y')
+    stockCsvfilename = ofilename+'_'+symbol+'_'+today+'.xlsx'
+    return stockCsvfilename
+
+#return output stockCsvfilename
+def getoFile(symbol,ofilename):
     today = datetime.date.today()
     today= datetime.datetime.strftime((today), '%m_%d_%Y')
     stockCsvfilename = ofilename+'_'+symbol+'_'+today+'.xlsx'
@@ -58,9 +70,11 @@ def getOptionStrikePrice(optionSymbol):
 
 #return data_frame of input stock csv file
 def getDataFrame(ifile,getNumberColsData):
+    
     data_frame = pd.read_csv(ifile, index_col = False)
     countRows = data_frame.shape[0]
     countCols = data_frame.shape[1]
+    print("getNumberColsData ,countColsis :",getNumberColsData,countCols)
     columnList= data_frame.columns.tolist()
     colFrom = countCols-getNumberColsData      
     CSVOptionSymbolList= data_frame.Symbol.tolist()
@@ -170,18 +184,13 @@ def generateDateList(ofile,getNumberColsData):
     dateListHeader = []
     header_list =[]
     prev_days = [today - timedelta(days=i) for i in range(getNumberColsData*2)]
-    print("prev_days is :",prev_days)
     prev_days = [d for d in prev_days if d.weekday() < 5]       
     for dateItems in prev_days[:getNumberColsData]:                                     
-        print("dateItems :",dateItems)
         dates = datetime.datetime.strftime((dateItems), '%Y%m%d')
         dateListHeader.append(dates)
-        print("dates:",dates)
     dateListHeader = sorted(dateListHeader)    
     header_list = ['Symbol']+dateListHeader
     header_list = [header_list]
-    print("len of header_list is :",len(header_list))    
-    print("header_list is :",header_list)
     
     with open(ofile, 'w') as myfile:
         writer = csv.writer(myfile)

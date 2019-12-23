@@ -14,14 +14,12 @@ from os import path
 import xlchartgenerator
 import commonapi
 
-todayDate = []
-
 ofilepath = './output/'
 ifilepath = './input/'
 ifilename = 0
 
 # Format the row data if any characters present 'U' to proper data to OI:SP:SV:OP:OV 
-def mainloop(ifname,ochartfilename,ichartfilename):
+def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
     global ifilename
     global ofilename
     ifilename = ifname
@@ -57,7 +55,6 @@ def mainloop(ifname,ochartfilename,ichartfilename):
     if os.path.exists(iCSVfile):
         #print("File Exists:",iCSVfile)
         data_frame = pd.read_csv(iCSVfile, index_col = False)
-        data_frame = data_frame.fillna(0)
         countCols = data_frame.shape[1]
         countRows = data_frame.shape[0]
         optionSymbol =[]
@@ -139,5 +136,5 @@ def mainloop(ifname,ochartfilename,ichartfilename):
         print("File Does not Exists:",iCSVfile)
 
     print("calling xlchartgenerator")            
-    xlchartgenerator.mainloop(oCSVfile,ochartfilename) 
+    xlchartgenerator.geneateOXLChartMain(oCSVfile,ochartfilename) 
                     
