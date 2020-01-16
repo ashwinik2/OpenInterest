@@ -10,14 +10,23 @@ import os.path
 import datetime
 import xlsxwriter
 from os import path
-import commonapi
+import Commonapi
 
 ofilepath = './output/'
 ifilepath ='./input/'
 ofilename = 0
 ifilename = 0
 
+
+#geneateOXLChartMain - generate Output XL CHArt of OI,OV jump or down
+    # input - ifname,ofname
+        # ifame - input file could be OI,OV ChartInput_AllStocks
+    #output
+        #ofname - output file could be OI,OV XLChart_AllStocks
+    
 def geneateOXLChartMain(ifname,ofname):
+    if(Commonapi.debug == 1):
+        print("geneateOXLChartMain started")
     global ifilename
     global ofilename
     ifilename = ifname
@@ -29,17 +38,16 @@ def geneateOXLChartMain(ifname,ofname):
     header = ["Date", "OI", "SP", "SV (100K Units)", "OP", "OV","TotalMoney"]
     num_headers = 5
     line_value = ["!$A$2:$A$", "!$B$2:$B$", "!$C$2:$C$", "!$D$2:$D$", "!$E$2:$E$", "!$F$2:$F$"]
-    iFileName = commonapi.getInputfile(ifilename)
+    iFileName = Commonapi.getInputfile(ifilename)
     #############################################################################################################
 
     print("icsvFileName is :",iFileName)
     
-    oFileName = commonapi.createoxlFile(ofilename)
+    oFileName = Commonapi.createoxlFile(ofilename)
     if os.path.exists(oFileName):
         print("file exists:",oFileName)
         os.remove(oFileName)
-        print("File Removed!")
-    
+        print("File Removed!")    
         
     if os.path.exists(iFileName):
             print("File Exists:",iFileName)
@@ -58,7 +66,7 @@ def geneateOXLChartMain(ifname,ofname):
                     optionSymbol = str(row[0])
                     
                     sheet_count =  sheet_count + 1
-                    sheet_name = "Sheet" + str(sheet_count) + str(optionSymbol)
+                    sheet_name = str(sheet_count) + str(optionSymbol)
                     outSheet = outWorkBook.add_worksheet(sheet_name)
 
                     #copy the first row header for the new file
@@ -72,13 +80,22 @@ def geneateOXLChartMain(ifname,ofname):
                     #copy each row elements remaining split across ":" delimeter into a separate row
                     for iFileColIndex in range(1, iFileCountCols):
                         iFileRowDataArray  = str(row[iFileColIndex]).split(":")
-                        for item in range(0, num_headers):
-                            if item == 2:
+                        for i in range(len(Commonapi.listOfStr)):
+                            if Commonapi.listOfStr[i] in iFileRowDataArray:
+                                rowdata = Commonapi.ConvertLst_Dict(iFileRowDataArray)                           
+                                if Commonapi.listOfStr[i] == 'SV':
                                 #devide by 100k if stock volume to harmnanize the easy viewing all lines in the graph
                                 #because stock volume is relatively large compared to other parameters in the chart
-                                outSheet.write(iFileColIndex, item+1, float(float(iFileRowDataArray[item])/100000))
+                                    outSheet.write(iFileColIndex, i+1, float(float(rowdata[Commonapi.listOfStr[i]])/100000))
+                                else:
+                                    outSheet.write(iFileColIndex, i+1, float(rowdata[Commonapi.listOfStr[i]]))
                             else:
-                                outSheet.write(iFileColIndex, item+1, float(iFileRowDataArray[item]))
+                                if i == 2:
+                                #devide by 100k if stock volume to harmnanize the easy viewing all lines in the graph
+                                #because stock volume is relatively large compared to other parameters in the chart
+                                    outSheet.write(iFileColIndex, i+1, float(float(iFileRowDataArray[i])/100000))
+                                else:
+                                    outSheet.write(iFileColIndex, i+1, float(iFileRowDataArray[i]))
 
 
                     #outSheet.write_array_formula('G2:G'+str(iFileCountCols) , '{=PRODUCT($B*$E'+'*100)}')
@@ -118,4 +135,5 @@ def geneateOXLChartMain(ifname,ofname):
     else:
         print("File Does not Exists:",iFileName)
                             
-
+    if(Commonapi.debug == 1):
+        print("geneateOXLChartMain ended")

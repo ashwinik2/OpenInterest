@@ -12,21 +12,88 @@ import os.path
 import datetime
 from os import path
 import xlchartgenerator
-import commonapi
+import Commonapi
 
 ofilepath = './output/'
 ifilepath = './input/'
 ifilename = 0
 
-# Format the row data if any characters present 'U' to proper data to OI:SP:SV:OP:OV 
+#convert list into dict
+    #input - rowdata
+        #rowdata - row cell data 10:250:200000:2.3:200
+    #output - dict {{OI:10,SP:250,SV:200000,OP:2.3,OV:200}
+
+def createDict(rowdata):
+    print("createDict(rowdata) is :",rowdata)
+
+    zipbObj = zip(Commonapi.listOfStr, rowdata) 
+    dictOfWords = dict(zipbObj)
+    return dictOfWords
+
+#format row cell data which is unavailavle  to required format
+    #output - colData list with formated data OI:0:SP:0:SV:0:OP:0:OV:0
+
+def formatRowDataU():
+    colData = []
+    stringOI = 'OI'
+    stringOI = str(stringOI)+Commonapi.data_seperator+str('0')
+    colData.append(stringOI)
+    
+    stringSP = 'SP'
+    stringSP = str(stringSP)+Commonapi.data_seperator+str('0')
+    colData.append(stringSP)
+
+    stringSV = 'SV'
+    stringSV = str(stringSV)+Commonapi.data_seperator+str('0')
+    colData.append(stringSV)
+    
+    stringOP = 'OP'
+    stringOP = str(stringOP)+Commonapi.data_seperator+str('0')
+    colData.append(stringOP)
+
+    stringOV = 'OV'
+    stringOV = str(stringOV)+Commonapi.data_seperator+str('0')
+    colData.append(stringOV)    
+    
+    colData = ':'.join(str(v) for v in colData)
+    return colData
+
+#formatRowDataU format the row cell data which is not in with required length ex:OI:10:SP:250:SV:120000
+#  to OI:10:SP:250:SV:120000:OP:0:OV:0
+    #input - length,fillzeros
+    #output - formated required length of the colData list 
+
+def formatRowDataU(length,fillzeros):
+    colData = []
+    length1 = len(Commonapi.listOfStr)-length 
+    for i in range(length1):
+        string = str(Commonapi.listOfStr[i])+':'+str(fillzeros[i])
+        colData.append(string)        
+ 
+    for i in range(length1 ,length+1):
+        string = str(Commonapi.listOfStr[i])+':'+str('0')
+        colData.append(string)
+            
+    colData = ':'.join(str(v) for v in colData)
+    return colData
+
+#generateInputFormatForXLChartMain generates required format for row cell of the unavailable trading day column
+    # input - ifname,ochartfilename,ichartfilename
+        # ifame - input file could be OI,OV PerJump_AllStocks
+    #output
+        #ichartfilename - input file could be OI,OV ChartInput_AllStocks 
+        #ochartfilename - output file could be OI,OV XLChart_AllStocks
 def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
+
+    if(Commonapi.debug == 1):
+        print("generateInputFormatForXLChartMain started")
     global ifilename
     global ofilename
     ifilename = ifname
     ofilename = ichartfilename
     header_list =[]
     
-    oCSVfile = commonapi.createOutputOIJumpFile(ofilename)
+    oCSVfile = Commonapi.createOutputOIJumpFile(ofilename)
     if os.path.exists(oCSVfile):
         os.remove(oCSVfile)
         print("File Removed!")
@@ -34,7 +101,7 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
         print("file exists:",oCSVfile)
     
     else:
-        iCSVfile = commonapi.getInputFile(ifilename)       
+        iCSVfile = Commonapi.getInputFile(ifilename)       
         if os.path.exists(iCSVfile):
             print("File Exists:",iCSVfile)
             data_frame = pd.read_csv(iCSVfile, index_col = False)
@@ -50,7 +117,7 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                 for row in header_list_2:
                     writer.writerow(row)
                     
-    iCSVfile = commonapi.getInputFile(ifilename)
+    iCSVfile = Commonapi.getInputFile(ifilename)
     
     if os.path.exists(iCSVfile):
         #print("File Exists:",iCSVfile)
@@ -91,32 +158,16 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                         fillzeros = rowFindU
                         result = (str(rowFindU).find('U'))
                         if(result == -1):
-                            if(rowFindU == 0  ):
-                                value = []
-                                for i in range(0,5):
-                                    count = 0
-                                    value.append(count)
-                                value = ':'.join(str(v) for v in value)
-                                rowData[item]= value
+                            if(rowFindU == 0):
+                                rowData[item]= formatRowDataU()
                                 outPutValue.append(rowData[item]) 
-                            elif(len(fillzeros) != 5):                            
-                                length = 5 - len(fillzeros)
-                                value = []
-                                for i in range(length):
-                                    count = 0
-                                    value.append(count)
-                                    fillzeros.append(count)
-                                fillzeros = ':'.join(str(v) for v in fillzeros)
+                            elif(len(fillzeros) <= 5):
+                                length = 5-len(fillzeros)
+                                fillzeros= formatRowDataU(length,fillzeros)
                                 outPutValue.append(fillzeros)
                             else:
                                 outPutValue.append(rowData[item])                        
                         else:
-                            value = []
-                            for i in range(0,5):
-                                count = 0
-                                value.append(count)
-                            value = ':'.join(str(v) for v in value)
-                            rowData[item]= value
                             outPutValue.append(rowData[item])                                                
                             
                     for item in range(0,len(outPutValue)):
@@ -126,14 +177,17 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                             
                     if(addDataoFile == 1):                          
                         rowsData = [(optSymbol)+(outPutValue)]
-                        commonapi.writeOIrOVtolocalCSV(oCSVfile,rowsData)
+                        Commonapi.writeOIrOVtolocalCSV(oCSVfile,rowsData)
                         
                     doProcess = 0 
-                row_index += 1
-                        
-        
+                row_index += 1        
     else:
         print("File Does not Exists:",iCSVfile)
+
+    if(Commonapi.debug == 1):
+        print("generateInputFormatForXLChartMain ended")
+        
+    #if call_error success from generateInputFormatForXLChartMain call geneateOXLChartMain 
 
     print("calling xlchartgenerator")            
     xlchartgenerator.geneateOXLChartMain(oCSVfile,ochartfilename) 
