@@ -25,8 +25,8 @@ ifilename = 0
         #ofname - output file could be OI,OV XLChart_AllStocks
     
 def geneateOXLChartMain(ifname,ofname):
-    if(Commonapi.debug == 1):
-        print("geneateOXLChartMain started")
+    if(Commonapi.info == 1):
+        logging.info('geneateOXLChartMain Started')
     global ifilename
     global ofilename
     ifilename = ifname
@@ -40,17 +40,15 @@ def geneateOXLChartMain(ifname,ofname):
     line_value = ["!$A$2:$A$", "!$B$2:$B$", "!$C$2:$C$", "!$D$2:$D$", "!$E$2:$E$", "!$F$2:$F$"]
     iFileName = Commonapi.getInputfile(ifilename)
     #############################################################################################################
-
-    print("icsvFileName is :",iFileName)
     
     oFileName = Commonapi.createoxlFile(ofilename)
     if os.path.exists(oFileName):
-        print("file exists:",oFileName)
+        logging.warning('%s %s', 'file exists', oFileName)
         os.remove(oFileName)
-        print("File Removed!")    
+        logging.warning('File Removed')    
         
     if os.path.exists(iFileName):
-            print("File Exists:",iFileName)
+            logging.warning('%s %s', 'file exists', iFileName)
             data_frame = pd.read_csv(iFileName, index_col = False)
             iFileCountCols = data_frame.shape[1]
             iFileCountRows = data_frame.shape[0]
@@ -133,7 +131,7 @@ def geneateOXLChartMain(ifname,ofname):
 
                 outWorkBook.close()
     else:
-        print("File Does not Exists:",iFileName)
+        logging.error('%s %s','File Does not Exists:',iFileName)
                             
-    if(Commonapi.debug == 1):
-        print("geneateOXLChartMain ended")
+    if(Commonapi.info == 1):
+        logging.info('geneateOXLChartMain Ended')

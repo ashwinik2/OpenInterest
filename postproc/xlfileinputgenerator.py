@@ -24,10 +24,15 @@ ifilename = 0
     #output - dict {{OI:10,SP:250,SV:200000,OP:2.3,OV:200}
 
 def createDict(rowdata):
-    print("createDict(rowdata) is :",rowdata)
+    if(Commonapi.info == 1):
+        logging.info('createDict Started')
+    if(Commonapi.debug == 1):
+        logging.debug('$s %s','createDict(rowdata) is',rowdata)
 
     zipbObj = zip(Commonapi.listOfStr, rowdata) 
     dictOfWords = dict(zipbObj)
+    if(Commonapi.info == 1):
+        logging.info('createDict Ended')
     return dictOfWords
 
 #format row cell data which is unavailavle  to required format
@@ -85,8 +90,8 @@ def formatRowDataU(length,fillzeros):
         #ochartfilename - output file could be OI,OV XLChart_AllStocks
 def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
 
-    if(Commonapi.debug == 1):
-        print("generateInputFormatForXLChartMain started")
+    if(Commonapi.info == 1):
+        logging.info('generateInputFormatForXLChartMain Started')
     global ifilename
     global ofilename
     ifilename = ifname
@@ -96,14 +101,14 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
     oCSVfile = Commonapi.createOutputOIJumpFile(ofilename)
     if os.path.exists(oCSVfile):
         os.remove(oCSVfile)
-        print("File Removed!")
+        logging.warning('File Removed!')
     if os.path.exists(oCSVfile):
-        print("file exists:",oCSVfile)
+        logging.warning('%s %s', 'file exists', oCSVfile)
     
     else:
         iCSVfile = Commonapi.getInputFile(ifilename)       
         if os.path.exists(iCSVfile):
-            print("File Exists:",iCSVfile)
+            logging.warning('%s %s', 'file exists', iCSVfile)
             data_frame = pd.read_csv(iCSVfile, index_col = False)
             countCols = data_frame.shape[1]
             header_list = data_frame.columns.tolist()
@@ -182,13 +187,12 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                     doProcess = 0 
                 row_index += 1        
     else:
-        print("File Does not Exists:",iCSVfile)
+        logging.error('%s %s', 'File Does not Exists:', iCSVfile)
 
-    if(Commonapi.debug == 1):
-        print("generateInputFormatForXLChartMain ended")
+    if(Commonapi.info == 1):
+        logging.info('generateInputFormatForXLChartMain Ended')
         
     #if call_error success from generateInputFormatForXLChartMain call geneateOXLChartMain 
-
-    print("calling xlchartgenerator")            
+    logging.warning('calling xlchartgenerator')
     xlchartgenerator.geneateOXLChartMain(oCSVfile,ochartfilename) 
                     

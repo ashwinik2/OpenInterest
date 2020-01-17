@@ -101,12 +101,12 @@ def insertTotalMoneyCPChart(sheet_obj,num_of_exp,symbol,finalOptionExpDate,final
     #iotm_col_loc - where in-the-money, out-of-money data loc(row position) of call or put
     #iotm_data_col_loc - where in-the-money, out-of-money data loc(col position) of call or put
 
-def insertCPIOMchartToCPMISheet(sheet_obj,symbol,finalOptionExpDate,num_of_exp,final_OTM_chart_insert_pos,chart_col_loc,getNumberColsData,iotm_row_loc):
+def insertCPIOMchartToCPMISheet(sheet_obj,symbol,finalOptionExpDate,num_of_exp,final_OTM_chart_insert_pos,iotm_data_col_loc,getNumberColsData,iotm_row_loc):
     if(Commonapi.debug == 1):
         print("insertCPIOMchartToCPMISheet started")
     for i in range(0,num_of_exp):
         min_rows = (int)(iotm_row_loc[0])
-        min_cols = (int)(iotm_data_col_loc)
+        min_cols = (int)(iotm_data_col_loc[i])
         max_cols =min_cols+3
         max_rows = min_rows+getNumberColsData
         chart = BarChart()

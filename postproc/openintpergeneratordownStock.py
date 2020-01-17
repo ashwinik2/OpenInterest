@@ -32,9 +32,9 @@ ichartfilename = ofilepath+'OIDownChartInput'
         #stocklist - stock symbol
     # output - call_error
 
-def openIntPerCalculatorDownMain(getNumberColsData,Percentage_OI_Down,thresold,money_margin,stockList):
-    if(Commonapi.debug == 1):
-        Print("openIntPerCalculatorDownMain started")
+def processopenintpergeneratordownStock(getNumberColsData,Percentage_OI_Down,thresold,money_margin,stockList):
+    if(Commonapi.info == 1):
+        logging.info('processopenintpergeneratordownStock Started')
 
     global ofilename
     global ochartfilename
@@ -45,29 +45,35 @@ def openIntPerCalculatorDownMain(getNumberColsData,Percentage_OI_Down,thresold,m
     ochartfilename = ochartfilename+'_'+stockSymbol
     ichartfilename = ichartfilename +'_'+stockSymbol
     call_error = dataapi.downOIAllstocks(totalStocks,stockList,ofilename,getNumberColsData,Percentage_OI_Down,thresold,money_margin)
-    if(Commonapi.debug == 1):
-        Print("openIntPerCalculatorDownMain ended")
+    if(Commonapi.info == 1):
+        logging.info('processopenintpergeneratordownStock Ended')
     return call_error
 
 
 if __name__ == "__main__":
 
-    if(Commonapi.debug == 1):
-        Print("openintpergeneratordownStock Main started")
-    stockList =['AAPL']
+    if(Commonapi.info == 1):
+        logging.info('openintpergeneratordownStock Main Started')
+    #stockList =['AAPL']
+    symbol = raw_input("Enter symbol :") 
+    print(symbol)
+    stockList = []
+    stockList.append(symbol)
     getNumberColsData = 40
     Percentage_OI_Down = 100
     money_margin = 20000
     thresold = 50
-    call_error = openIntPerCalculatorDownMain(getNumberColsData,Percentage_OI_Down,thresold,money_margin,stockList)
-    if(Commonapi.debug == 1):
-        Print("openintpergeneratordownStock Main ended")
+    call_error = processopenintpergeneratordownStock(getNumberColsData,Percentage_OI_Down,thresold,money_margin,stockList)
+    if(Commonapi.info == 1):
+        logging.info('openintpergeneratordownStock Main Ended')
 
     #if success from openIntPerCalculatorDownMain call generateInputFormatForXLChartMain
     if(call_error == globalheader.Success):
+        if(Commonapi.info == 1):
+            logging.info('%s %d', 'processopenintpergeneratordownStock Success', call_error)
         xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
     else:
-        print("openIntPerCalculatorUpMain is failed:",call_error)
+        logging.error('%s %d', 'processopenintpergeneratordownStock Failed', call_error)
                     
     print('done')                 
 

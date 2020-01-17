@@ -34,21 +34,21 @@ ichartfilename = ofilepath+'OVChartInput_AllStocks'
         #Diff_IN_OI_OV_Percentage_Above - diff in percentage in open interest and option vol    
     # output - call_error
 
-def processOptionVolumeJumpMain(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above):
+def processoptionvoljumpAllStocks(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above):
 
-    if(Commonapi.debug == 1):
-        print("processOptionVolumeJumpMain started")
+     if(Commonapi.info == 1):
+        logging.info('processOptionVolumeJumpMain started')
     
     totalStocks,stockSymbol,stockExpDate = dataapi.generateTotalStockList(ifilestocklist)
     call_error = dataapi.jumpOVAllstocks(totalStocks,stockSymbol,ofilename,thresold,Percentage_OV_Jump,money_margin,getNumberColsData,Diff_IN_OI_OV_Percentage_Above)
-    if(Commonapi.debug == 1):
-        print("processOptionVolumeJumpMain ended")
+     if(Commonapi.info == 1):
+        logging.info('processOptionVolumeJumpMain Ended')
     return call_error
 
 if __name__ == "__main__":
 
-    if(Commonapi.debug == 1):
-        print("optionvoljumpAllStocks started")
+     if(Commonapi.info == 1):
+        logging.info('optionvoljumpAllStocks Started')
 
     getNumberColsData = 40
     Percentage_OV_Jump = 200
@@ -57,17 +57,19 @@ if __name__ == "__main__":
     Diff_IN_OI_OV_Percentage_Above = 200
 
     #calls local function processOptionVolumeJumpMain
-    call_error = processOptionVolumeJumpMain(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above)
-    if(Commonapi.debug == 1):
-        print("optionvoljumpAllStocks ended")
+    call_error = processoptionvoljumpAllStocks(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above)
+    if(Commonapi.info == 1):
+        logging.info('optionvoljumpAllStocks Ended')
 
     #if call_error success from processOptionVolumeJumpMain call generateInputFormatForXLChartMain 
     
     if(call_error == globalheader.Success):
+        if(Commonapi.info == 1):
+            logging.info('%s %d', 'processoptionvoljumpAllStocks Success', call_error)
         xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
     else:
-        print("openIntPerCalculatorUpMain is failed:",call_error)
+        logging.error('%s %d', 'processoptionvoljumpAllStocks Failed', call_error)
                     
-    print('done')                
+    logging.warning('done')                
 
 

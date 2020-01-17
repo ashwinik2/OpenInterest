@@ -15,16 +15,22 @@ from datetime import timedelta
 import enum
 import globalheader
 import dataapi
-
 import sys
+
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
 csv.field_size_limit(sys.maxsize)
 contractType =['CALL','PUT']
 listOfStr = ["OI", "SP" , "SV" , "OP" , "OV"]
 debug = 0
+info = 0
 data_seperator =':'
 name_seperator = ':'
 
 csvDataFilePath = './../datacolls/output/'
+
+
 #declare enums for CALL,PUT
 class Contracttype(enum.Enum):
     CALL = 0
