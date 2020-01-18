@@ -11,6 +11,7 @@ import datetime
 import xlsxwriter
 from os import path
 import Commonapi
+import globalheader
 
 ofilepath = './output/'
 ifilepath ='./input/'
@@ -25,8 +26,8 @@ ifilename = 0
         #ofname - output file could be OI,OV XLChart_AllStocks
     
 def geneateOXLChartMain(ifname,ofname):
-    if(Commonapi.info == 1):
-        logging.info('geneateOXLChartMain Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('geneateOXLChartMain Started')
     global ifilename
     global ofilename
     ifilename = ifname
@@ -43,12 +44,12 @@ def geneateOXLChartMain(ifname,ofname):
     
     oFileName = Commonapi.createoxlFile(ofilename)
     if os.path.exists(oFileName):
-        logging.warning('%s %s', 'file exists', oFileName)
+        globalheader.logging.warning('%s %s', 'file exists', oFileName)
         os.remove(oFileName)
-        logging.warning('File Removed')    
+        globalheader.logging.warning('File Removed')    
         
     if os.path.exists(iFileName):
-            logging.warning('%s %s', 'file exists', iFileName)
+            globalheader.logging.warning('%s %s', 'file exists', iFileName)
             data_frame = pd.read_csv(iFileName, index_col = False)
             iFileCountCols = data_frame.shape[1]
             iFileCountRows = data_frame.shape[0]
@@ -126,12 +127,10 @@ def geneateOXLChartMain(ifname,ofname):
                             chart.add_series({"values": sheet_name + line_value[ofile_row_index] +str(iFileCountCols+1), "name": header[ofile_row_index]})
                                          
                     outSheet.insert_chart("I15", chart)
-                                     
-
-
                 outWorkBook.close()
+                
+            if(globalheader.info == 1):
+                globalheader.logging.info('geneateOXLChartMain Ended')
     else:
-        logging.error('%s %s','File Does not Exists:',iFileName)
+        globalheader.logging.error('%s %s','File Does not Exists:',iFileName)
                             
-    if(Commonapi.info == 1):
-        logging.info('geneateOXLChartMain Ended')

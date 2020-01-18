@@ -33,34 +33,36 @@ ichartfilename = ofilepath+'OIUPChartInput_AllStocks'
 
     # output - call_error
 
-def calculateJumpOI(Percentage_OI_Jump,thresold,money_margin,getNumberColsData):
-    if(Commonapi.debug == 1):
-        print("calculateJumpOI started")
+def processopenintpergeneratorJumpAllstocks(Percentage_OI_Jump,thresold,money_margin,getNumberColsData):
+    if(globalheader.info == 1):
+        globalheader.logging.info('processopenintpergeneratorJumpAllstocks Started')
     
     totalStocks,stockSymbol,stockExpDate = dataapi.generateTotalStockList(ifilestocklist)
     call_error = dataapi.jumpOIAllstocks(totalStocks,stockSymbol,ofilename,thresold,Percentage_OI_Jump,money_margin,getNumberColsData)
-    if(Commonapi.debug == 1):
-        print("calculateJumpOI ended")
+    if(globalheader.info == 1):
+        globalheader.logging.info('processopenintpergeneratorJumpAllstocks Ended')
     return call_error
         
 if __name__ == "__main__":
 
-    if(Commonapi.debug == 1):
-        print("openintpergeneratorJUmpAllstocks started")
+    if(globalheader.info == 1):
+        globalheader.logging.info('openintpergeneratorJUmpAllstocks Started')
 
     getNumberColsData = 40
     Percentage_OI_Jump = 400
     thresold = 50
     money_margin = 20000
-    call_error = calculateJumpOI(Percentage_OI_Jump,thresold,money_margin,getNumberColsData)
-    if(Commonapi.debug == 1):
-        print("openintpergeneratorJUmpAllstocks ended")
+    call_error = processopenintpergeneratorJumpAllstocks(Percentage_OI_Jump,thresold,money_margin,getNumberColsData)
+    if(globalheader.info == 1):
+        globalheader.logging.info('openintpergeneratorJUmpAllstocks Ended')
 
     #if call_error success from calculateJumpOI call generateInputFormatForXLChartMain 
     if(call_error == globalheader.Success):
+        if(globalheader.info == 1):
+            globalheader.logging.info('%s %d', 'processopenintpergeneratorJumpAllstocks Success', call_error)
         xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
     else:
-        print("openIntPerCalculatorUpMain is failed:",call_error)
+        globalheader.logging.error('%s %d', 'processopenintpergeneratorJumpAllstocks Failed', call_error)
                     
-    print('done')
+    globalheader.logging.warning('done')
 

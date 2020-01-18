@@ -57,19 +57,19 @@ chart_col_loc =  ['2','12','22','32','42','52','62','72','82','92','102','112','
         #symbol - stock expiration symbol
 
 def addSheetToXl(wb_obj,symbol):
-    if(Commonapi.info == 1):
-        logging.info('addSheetToXl Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('addSheetToXl Started')
     if symbol in wb_obj.sheetnames:
         if(Commonapi.debug == 1):
-            logging.debug('%s %s', 'sheet_name present in wb_obj.sheetnames is', symbol,wb_obj.sheetnames) 
+            globalheader.logging.debug('%s %s', 'sheet_name present in wb_obj.sheetnames is', symbol,wb_obj.sheetnames) 
         std=wb_obj.get_sheet_by_name(symbol)
         wb_obj.remove_sheet(std)
     if not symbol in wb_obj.sheetnames:
         if(Commonapi.debug == 1):
-            logging.debug('%s %s', 'sheet_name not present in wb_obj.sheetnames is', symbol,wb_obj.sheetnames)
+            globalheader.logging.debug('%s %s', 'sheet_name not present in wb_obj.sheetnames is', symbol,wb_obj.sheetnames)
         wb_obj.create_sheet(symbol)
-    if(Commonapi.info == 1):
-        logging.info('addSheetToXl Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('addSheetToXl Ended')
 
 
 # Adding call/put max pain data of individual strikeprice of all expiration dates of all trading days to excel sheet
@@ -81,8 +81,8 @@ def addSheetToXl(wb_obj,symbol):
         # money_inv_dict - money inv dict data
         #symbol - stock expiration symbol        
 def writeMoneyInvDataToXl(contracttype,wb_obj,money_inv_dict,Symbol):
-        if(Commonapi.info == 1):
-            logging.info('writeMoneyInvDataToXl Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeMoneyInvDataToXl Started')
         global num_of_exp
         exp_date_list = money_inv_dict.keys()
         num_of_exp = len(exp_date_list)
@@ -141,8 +141,8 @@ def writeMoneyInvDataToXl(contracttype,wb_obj,money_inv_dict,Symbol):
                 chart_col_loc.append(expdate_chart_col_loc[contracttype])
                 chartapi.insertLineChart(sheet_obj_ref,strikeprice_list,Symbol,exp_date_list[expdatekey],y_axis_label,chart_col_loc,chart_insert_pos,1)
 
-        if(Commonapi.info == 1):
-            logging.info('writeMoneyInvDataToXl Ended')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeMoneyInvDataToXl Ended')
 
 # Adding call/put OTM,ITM money inv data  to last sheet "ALL_MICP of individual strikeprice of all expiration dates of all trading days to excel sheet
 # calls insertLineChart which is in chartapi.py 
@@ -153,8 +153,8 @@ def writeMoneyInvDataToXl(contracttype,wb_obj,money_inv_dict,Symbol):
         # otm_dict - OTM,ITM money inv dict data
         #symbol - stock expiration symbol
 def writeCPIOTMtoCPMISheet(contracttype,wb_obj,otm_dict,Symbol):
-        if(Commonapi.info == 1):
-            logging.info('writeCPIOTMtoCPMISheet Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeCPIOTMtoCPMISheet Started')
         sheet_obj = wb_obj["All_Exp_CPMI"]
         min_rows = sheet_obj.max_row
         min_cols = sheet_obj.max_column
@@ -205,8 +205,8 @@ def writeCPIOTMtoCPMISheet(contracttype,wb_obj,otm_dict,Symbol):
                             for header_index in range(0,len(header_list)):
                                     cellref = sheet_obj.cell(row = data_col_loc[0]+1+trading_day,column = col_index+header_index)
                                     cellref.value = header_value_list[header_index]
-        if(Commonapi.info == 1):
-            logging.info('writeCPIOTMtoCPMISheet Ended')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeCPIOTMtoCPMISheet Ended')
         
 
 # Adding call/put total money data of individual strikeprice of all expiration dates of all trading days to excel sheet
@@ -218,8 +218,8 @@ def writeCPIOTMtoCPMISheet(contracttype,wb_obj,otm_dict,Symbol):
         # tm_dict - total money dict data
         #symbol - stock expiration symbol
 def writeTotalMoneyInvDatatoXl(contracttype,wb_obj,tm_dict,Symbol):
-        if(Commonapi.info == 1):
-            logging.info('writeTotalMoneyInvDatatoXl Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeTotalMoneyInvDatatoXl Started')
         global length
         sheet_obj = wb_obj["All_Exp_CPMI"]
         min_rows = sheet_obj.max_row
@@ -267,8 +267,8 @@ def writeTotalMoneyInvDatatoXl(contracttype,wb_obj,tm_dict,Symbol):
                             for header_index in range(0,len(header_list)):
                                     cellref = sheet_obj.cell(row = trading_day+2,column = col_index+header_index)
                                     cellref.value = header_value_list[header_index]
-        if(Commonapi.info == 1):
-            logging.info('writeTotalMoneyInvDatatoXl Ended')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeTotalMoneyInvDatatoXl Ended')
 
 # Adding call/put in the money and out-of-money  open  interest of individual strikeprice of all expiration dates of all trading days to excel sheet
 # calls insertLineChart which is in chartapi.py 
@@ -280,8 +280,8 @@ def writeTotalMoneyInvDatatoXl(contracttype,wb_obj,tm_dict,Symbol):
         #symbol - stock expiration symbol
         
 def writeCPIOTMIOtoCPMISheet(contracttype,wb_obj,otmoi_dict,Symbol):
-        if(Commonapi.info == 1):
-            logging.info('writeCPIOTMIOtoCPMISheet Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeCPIOTMIOtoCPMISheet Started')
         sheet_obj = wb_obj["All_Exp_CPMI"]
         min_rows = sheet_obj.max_row
         min_cols = sheet_obj.max_column
@@ -335,16 +335,16 @@ def writeCPIOTMIOtoCPMISheet(contracttype,wb_obj,otmoi_dict,Symbol):
                                     cellref = sheet_obj.cell(row = data_col_loc[1]+1+trading_day,column = col_index+header_index)
                                     cellref.value = header_value_list[header_index]
                                     
-        if(Commonapi.info == 1):
-            logging.info('writeCPIOTMIOtoCPMISheet Ended')
+        if(globalheader.info == 1):
+            globalheader.logging.info('writeCPIOTMIOtoCPMISheet Ended')
                 
 #money inv calls getmoneyInvAllExpDateAll(symbol,contractype) which is in commonapi.py for each option type
 #gets money inv dict for all existing expiration dates and calls local writeMaxPainDataToXl
         #input
         #symbol - stock symbol        
 def money_inv(Symbol):
-        if(Commonapi.info == 1):
-            logging.info('money_inv Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('money_inv Started')
         symbol = (str)(Symbol)
         strikeprice_list = []
         call_error,istockCSVfile =  dataapi.getStockCSVFile(0,symbol,ifilepath)
@@ -362,8 +362,8 @@ def money_inv(Symbol):
                     keys = money_inv_dict.keys()
                     num_exp_dates = len(keys)
                     if(call_error == globalheader.Success):
-                        if(Commonapi.info == 1):
-                            logging.info('%s %d','Commonapi.getmoneyInvAllExpDateAllData Success', call_error)
+                        if(globalheader.info == 1):
+                            globalheader.logging.info('%s %d','Commonapi.getmoneyInvAllExpDateAllData Success', call_error)
                         writeMoneyInvDataToXl(contracttype,wb_obj,money_inv_dict,Symbol)
                         writeTotalMoneyInvDatatoXl(contracttype,wb_obj,tm_dict,Symbol)
                         writeCPIOTMtoCPMISheet(contracttype,wb_obj,otm_dict,Symbol)
@@ -378,8 +378,8 @@ def money_inv(Symbol):
 
                 chartapi.insertCPIOMOIchartToCPMISheet(sheet_obj,Symbol,keys,num_exp_dates,final_OTMOI_chart_insert_pos,chart_col_loc,length,data_col_loc)
                 wb_obj.save(oxlfile)
-                if(Commonapi.info == 1):
-                    logging.info('money inv Ended')
+                if(globalheader.info == 1):
+                    globalheader.logging.info('money inv Ended')
                 return call_error
 
         else:
@@ -387,15 +387,15 @@ def money_inv(Symbol):
             return call_error
         
 if __name__ == "__main__":
-        if(Commonapi.info == 1):
-            logging.info('money inv  main Started')
+        if(globalheader.info == 1):
+            globalheader.logging.info('money inv  main Started')
         symbol = raw_input("Enter symbol :") 
         call_error = money_inv(symbol)
         if(call_error == globalheader.Success):
-            if(Commonapi.info == 1):
-                logging.info('%s %d','money_inv Success', call_error)
+            if(globalheader.info == 1):
+                globalheader.logging.info('%s %d','money_inv Success', call_error)
             else:
                 logging.error('%s %d', 'money_inv  Failed', call_error)
-        if(Commonapi.info == 1):
-                logging.info('money inv  main Ended')
-logging.warning('done')
+        if(globalheader.info == 1):
+                globalheader.logging.info('money inv  main Ended')
+globalheader.logging.warning('done')

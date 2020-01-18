@@ -16,8 +16,6 @@ import Commonapi
 import xlfileinputgenerator
 import globalheader
 import dataapi
-import logging
-
 
 ofilepath = './output/'
 ofilename = ofilepath+'OIPerJump'
@@ -37,8 +35,8 @@ ichartfilename = ofilepath+'OIUPChartInput'
  
 def processopenintpergeneratorjumpStock(getNumberColsData,Percentage_OI_Jump,thresold,money_margin,stockList):
 
-    if(Commonapi.info == 1):
-        logging.info('processopenintpergeneratorjumpStock Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('processopenintpergeneratorjumpStock Started')
     global ofilename
     global ochartfilename
     global ichartfilename
@@ -49,13 +47,14 @@ def processopenintpergeneratorjumpStock(getNumberColsData,Percentage_OI_Jump,thr
     ichartfilename = ichartfilename +'_'+stockSymbol
     oCSVOIJumpFile = Commonapi.createOutputOIJumpFile(ofilename)    
     call_error = dataapi.jumpOIAllstocks(totalStocks,stockList,ofilename,thresold,Percentage_OI_Jump,money_margin,getNumberColsData)
-    if(Commonapi.info == 1):
-        logging.info('processopenintpergeneratorjumpStock Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('processopenintpergeneratorjumpStock Ended')
     return call_error
         
 if __name__ == "__main__":
-    if(Commonapi.info == 1):
-        logging.info('openintpergeneratorjumpStock Started')
+    
+    if(globalheader.info == 1):
+        globalheader.logging.info('openintpergeneratorjumpStock Started')
 
     symbol = raw_input("Enter symbol :") 
     print(symbol)
@@ -67,18 +66,18 @@ if __name__ == "__main__":
     thresold = 50
     money_margin = 20000
     call_error = processopenintpergeneratorjumpStock(getNumberColsData,Percentage_OI_Jump,thresold,money_margin,stockList)
-    if(Commonapi.info == 1):
-        logging.info('openintpergeneratorjumpStock Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('openintpergeneratorjumpStock Ended')
         
     #if call_error success from openIntPerCalculatorUpMain call generateInputFormatForXLChartMain 
     
     if(call_error == globalheader.Success):
-        if(Commonapi.info == 1):
-            logging.info('%s %d', 'processopenintpergeneratorjumpStock Success', call_error)
+        if(globalheader.info == 1):
+            globalheader.logging.info('%s %d', 'processopenintpergeneratorjumpStock Success', call_error)
         xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
     else:
-        logging.error('%s %d', 'processopenintpergeneratorjumpStock Failed', call_error)
+        globalheader.logging.error('%s %d', 'processopenintpergeneratorjumpStock Failed', call_error)
                     
-    logging.warning('done')
+    globalheader.logging.warning('done')
 
 

@@ -48,8 +48,8 @@ expdate_chart_insert_pos =["A64","CV64"]
         #StockOptionExpDate - stock expiration date
         
 def writeMaxPainDataToXl(contracttype,wb_obj,max_pain_dict,Symbol,StockOptionExpDate):
-        if(Commonapi.info == 1):
-                logging.info('writeMaxPainDataToXl Started')
+        if(globalheader.info == 1):
+                globalheader.logging.info('writeMaxPainDataToXl Started')
         trading_days_list = max_pain_dict.keys()
         sheet_obj = 0
         strikeprice_list = []
@@ -98,8 +98,8 @@ def writeMaxPainDataToXl(contracttype,wb_obj,max_pain_dict,Symbol,StockOptionExp
         chart_col_loc=[]
         chart_col_loc.append(expdate_chart_col_loc[contracttype])
         chartapi.insertLineChart(sheet_obj,strikeprice_list,Symbol,StockOptionExpDate,y_axis_label,chart_col_loc,chart_insert_pos,1)
-        if(Commonapi.info == 1):
-                logging.info('writeMaxPainDataToXl Ended')
+        if(globalheader.info == 1):
+                globalheader.logging.info('writeMaxPainDataToXl Ended')
                 
 #Adding sheet of each expiration date to xl workbook
 #addSheetToXl(wb_obj,symbol,sheetIndex,finalOptionExpDateList):
@@ -109,72 +109,72 @@ def writeMaxPainDataToXl(contracttype,wb_obj,max_pain_dict,Symbol,StockOptionExp
         #symbol - stock expiration symbol
         #finalOptionExpDateList - stock expiration date list                        
 def addSheetToXl(wb_obj,symbol,sheetIndex,finalOptionExpDateList):
-        if(Commonapi.info == 1):
-                logging.info('addSheetToXl Started')
+        if(globalheader.info == 1):
+                globalheader.logging.info('addSheetToXl Started')
         sheet_name =  str(symbol)+finalOptionExpDateList
         if sheet_name in wb_obj.sheetnames:
-                if(Commonapi.debug == 1):
-                        logging.debug('%s %s', 'sheet_name present in wb_obj.sheetnames is', sheet_name,wb_obj.sheetnames)                    
+                if(globalheader.debug == 1):
+                        globalheader.logging.debug('%s %s', 'sheet_name present in wb_obj.sheetnames is', sheet_name,wb_obj.sheetnames)                    
         if not sheet_name in wb_obj.sheetnames:
-                if(Commonapi.debug == 1):
-                        logging.debug('%s %s', 'sheet_name not present in wb_obj.sheetnames is', sheet_name,wb_obj.sheetnames)                    
+                if(globalheader.debug == 1):
+                        globalheader.logging.debug('%s %s', 'sheet_name not present in wb_obj.sheetnames is', sheet_name,wb_obj.sheetnames)                    
                 wb_obj.create_sheet(index = sheetIndex , title = sheet_name)
         if(Commonapi.info == 1):
-                logging.info('addSheetToXl Ended')
+                globalheader.logging.info('addSheetToXl Ended')
         
 def maxpain(Symbol,StockOptionExpDate):
-        if(Commonapi.info == 1):
-                logging.info('maxpain Started')
+        if(globalheader.info == 1):
+                globalheader.logging.info('maxpain Started')
         sheet_count = 0
         finalOptionExpDateList =[]
         call_error,istockCSVfilename =  dataapi.getStockCSVFile(0,symbol,ifilepath)
         if(call_error == globalheader.Success): 
                 oxlfile = Commonapi.createoFile(symbol,ofilename)
                 if os.path.exists(oxlfile):
-                        logging.warning('%s %s', 'file exists:', oxlfile)
+                        globalheader.logging.warning('%s %s', 'file exists:', oxlfile)
                         os.remove(oxlfile)
-                        logging.warning('File Removed!')
+                        globalheader.logging.warning('File Removed!')
             
                 if os.path.exists(oxlfile):
                         wb_obj = openpyxl.load_workbook(oxlfile)
-                        logging.warning('%s %s', 'file exists:', oxlfile)
+                        globalheader.logging.warning('%s %s', 'file exists:', oxlfile)
 
                 else:
-                        logging.warning('%s %s', 'File does not Exists:', oxlfile)
+                        globalheader.logging.warning('%s %s', 'File does not Exists:', oxlfile)
                         wb_obj = openpyxl.Workbook()
   
                 for contracttype in range(len(contractType)):                                    
                         call_error,max_pain_dict = Commonapi.getMaxPain(Symbol,StockOptionExpDate,contracttype)
                         if(call_error == globalheader.Success):
-                                if(Commonapi.info == 1):
-                                    logging.info('Commonapi.getMaxPain Success')
+                                if(globalheader.info == 1):
+                                    globalheader.logging.info('Commonapi.getMaxPain Success')
                                 writeMaxPainDataToXl(contracttype,wb_obj,max_pain_dict,Symbol,StockOptionExpDate)
                         else:
-                                logging.error('%s %d', 'Commonapi.getMaxPain Failed', call_error)
+                                globalheader.logging.error('%s %d', 'Commonapi.getMaxPain Failed', call_error)
                                 return call_error
                 wb_obj.save(oxlfile)
-                if(Commonapi.info == 1):
-                        logging.info('maxpain Ended')
+                if(globalheader.info == 1):
+                        globalheader.logging.info('maxpain Ended')
                 return call_error
 
         else:
-                logging.error('%s %d', 'max pain Failed', call_error)
+                globalheader.logging.error('%s %d', 'max pain Failed', call_error)
                 return call_error
                            
 if __name__ == "__main__":
-        if(Commonapi.info == 1):
-                logging.info('maxpain main Started')
+        if(globalheader.info == 1):
+                globalheader.logging.info('maxpain main Started')
         symbol = raw_input("Enter symbol :") 
         StockOptionExpDate = raw_input("Enter stock exp date in format 'YYMMDD' :",) 
         call_error = maxpain(symbol,StockOptionExpDate)
         if(call_error == globalheader.Success):
-                if(Commonapi.info == 1):
-                    logging.info('%s %d','maxpain Success', call_error)
+                if(globalheader.info == 1):
+                    globalheader.logging.info('%s %d','maxpain Success', call_error)
                 moneyinvExpDate.money_inv(symbol,StockOptionExpDate)
         else:
-                logging.error('%s %d', 'maxpain Failed', call_error)
-        if(Commonapi.info == 1):
-                logging.info('maxpain main Ended')
+                globalheader.logging.error('%s %d', 'maxpain Failed', call_error)
+        if(globalheader.info == 1):
+                globalheader.logging.info('maxpain main Ended')
 
 
                     

@@ -13,6 +13,7 @@ import datetime
 from os import path
 import xlchartgenerator
 import Commonapi
+import globalheader
 
 ofilepath = './output/'
 ifilepath = './input/'
@@ -24,15 +25,15 @@ ifilename = 0
     #output - dict {{OI:10,SP:250,SV:200000,OP:2.3,OV:200}
 
 def createDict(rowdata):
-    if(Commonapi.info == 1):
-        logging.info('createDict Started')
-    if(Commonapi.debug == 1):
-        logging.debug('$s %s','createDict(rowdata) is',rowdata)
+    if(globalheader.info == 1):
+        globalheader.logging.info('createDict Started')
+    if(globalheader.debug == 1):
+        globalheader.logging.debug('$s %s','createDict(rowdata) is',rowdata)
 
     zipbObj = zip(Commonapi.listOfStr, rowdata) 
     dictOfWords = dict(zipbObj)
-    if(Commonapi.info == 1):
-        logging.info('createDict Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('createDict Ended')
     return dictOfWords
 
 #format row cell data which is unavailavle  to required format
@@ -90,8 +91,8 @@ def formatRowDataU(length,fillzeros):
         #ochartfilename - output file could be OI,OV XLChart_AllStocks
 def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
 
-    if(Commonapi.info == 1):
-        logging.info('generateInputFormatForXLChartMain Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('generateInputFormatForXLChartMain Started')
     global ifilename
     global ofilename
     ifilename = ifname
@@ -101,14 +102,14 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
     oCSVfile = Commonapi.createOutputOIJumpFile(ofilename)
     if os.path.exists(oCSVfile):
         os.remove(oCSVfile)
-        logging.warning('File Removed!')
+        globalheader.logging.warning('File Removed!')
     if os.path.exists(oCSVfile):
-        logging.warning('%s %s', 'file exists', oCSVfile)
+        globalheader.logging.warning('%s %s', 'file exists', oCSVfile)
     
     else:
         iCSVfile = Commonapi.getInputFile(ifilename)       
         if os.path.exists(iCSVfile):
-            logging.warning('%s %s', 'file exists', iCSVfile)
+            globalheader.logging.warning('%s %s', 'file exists', iCSVfile)
             data_frame = pd.read_csv(iCSVfile, index_col = False)
             countCols = data_frame.shape[1]
             header_list = data_frame.columns.tolist()
@@ -147,7 +148,6 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
     ### Dd process if columns does not contain 'U'
                 for j in range(0,len(pastColsDat)):
                     if(pastColsDat[j] == 'U'):
-                        print("No operation row[j],j,optionSymbol: ",pastColsDat[j],j,optionSymbol)
                         doProcess = 1
                                                                     
                 if(doProcess == 1):
@@ -177,7 +177,6 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                             
                     for item in range(0,len(outPutValue)):
                         if(outPutValue[item] == 'NU'):
-                            print("No operation row[j],j,optionSymbol: ",pastColsDat[j],j,optionSymbol)
                             addDataoFile = 0
                             
                     if(addDataoFile == 1):                          
@@ -187,12 +186,12 @@ def generateInputFormatForXLChartMain(ifname,ochartfilename,ichartfilename):
                     doProcess = 0 
                 row_index += 1        
     else:
-        logging.error('%s %s', 'File Does not Exists:', iCSVfile)
+        globalheader.logging.error('%s %s', 'File Does not Exists:', iCSVfile)
 
-    if(Commonapi.info == 1):
-        logging.info('generateInputFormatForXLChartMain Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('generateInputFormatForXLChartMain Ended')
         
     #if call_error success from generateInputFormatForXLChartMain call geneateOXLChartMain 
-    logging.warning('calling xlchartgenerator')
+    globalheader.logging.warning('calling xlchartgenerator')
     xlchartgenerator.geneateOXLChartMain(oCSVfile,ochartfilename) 
                     

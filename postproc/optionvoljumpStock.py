@@ -33,8 +33,8 @@ ichartfilename = ofilepath+'OVChartInput'
     # output - call_error
 
 def processoptionvoljumpStock(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above,stockList):
-    if(Commonapi.info == 1):
-        logging.info('processoptionvoljumpStock Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('processoptionvoljumpStock Started')
     
     global ofilename
     global ochartfilename
@@ -46,14 +46,14 @@ def processoptionvoljumpStock(getNumberColsData,Percentage_OV_Jump,thresold,mone
     ichartfilename = ichartfilename +'_'+stockSymbol
     
     call_error = dataapi.jumpOVAllstocks(totalStocks,stockList,ofilename,thresold,Percentage_OV_Jump,money_margin,getNumberColsData,Diff_IN_OI_OV_Percentage_Above)
-    if(Commonapi.info == 1):
-        logging.info('processoptionvoljumpStock Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('processoptionvoljumpStock Ended')
     return call_error
                 
 if __name__ == "__main__":
 
-    if(Commonapi.info == 1):
-        logging.info('optionvoljumpStock Started')
+    if(globalheader.info == 1):
+        globalheader.logging.info('optionvoljumpStock Started')
     #stockList =['AAPL']
     symbol = raw_input("Enter symbol :") 
     print(symbol)
@@ -65,17 +65,17 @@ if __name__ == "__main__":
     money_margin = 20000
     Diff_IN_OI_OV_Percentage_Above = 100
     call_error = processoptionvoljumpStock(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above,stockList)
-    if(Commonapi.info == 1):
-        logging.info('optionvoljumpStock Ended')
+    if(globalheader.info == 1):
+        globalheader.logging.info('optionvoljumpStock Ended')
         
     #if call_error success from processOptionVolumeJumpMain call generateInputFormatForXLChartMain 
     
     if(call_error == globalheader.Success):
-        if(Commonapi.info == 1):
-            logging.info('%s %d', 'processoptionvoljumpStock Success', call_error)
+        if(globalheader.info == 1):
+            globalheader.logging.info('%s %d', 'processoptionvoljumpStock Success', call_error)
         xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
     else:
-        logging.error('%s %d', 'processoptionvoljumpStock Failed', call_error)
+        globalheader.logging.error('%s %d', 'processoptionvoljumpStock Failed', call_error)
 
     print('done')
 

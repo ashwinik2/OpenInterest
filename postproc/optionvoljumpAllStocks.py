@@ -36,40 +36,40 @@ ichartfilename = ofilepath+'OVChartInput_AllStocks'
 
 def processoptionvoljumpAllStocks(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above):
 
-     if(Commonapi.info == 1):
-        logging.info('processOptionVolumeJumpMain started')
+     if(globalheader.info == 1):
+        globalheader.logging.info('processOptionVolumeJumpMain started')
     
-    totalStocks,stockSymbol,stockExpDate = dataapi.generateTotalStockList(ifilestocklist)
-    call_error = dataapi.jumpOVAllstocks(totalStocks,stockSymbol,ofilename,thresold,Percentage_OV_Jump,money_margin,getNumberColsData,Diff_IN_OI_OV_Percentage_Above)
-     if(Commonapi.info == 1):
-        logging.info('processOptionVolumeJumpMain Ended')
-    return call_error
+     totalStocks,stockSymbol,stockExpDate = dataapi.generateTotalStockList(ifilestocklist)
+     call_error = dataapi.jumpOVAllstocks(totalStocks,stockSymbol,ofilename,thresold,Percentage_OV_Jump,money_margin,getNumberColsData,Diff_IN_OI_OV_Percentage_Above)
+     if(globalheader.info == 1):
+          globalheader.logging.info('processOptionVolumeJumpMain Ended')
+     return call_error
 
 if __name__ == "__main__":
 
-     if(Commonapi.info == 1):
-        logging.info('optionvoljumpAllStocks Started')
+     if(globalheader.info == 1):
+        globalheader.logging.info('optionvoljumpAllStocks Started')
 
-    getNumberColsData = 40
-    Percentage_OV_Jump = 200
-    thresold = 50
-    money_margin = 20000
-    Diff_IN_OI_OV_Percentage_Above = 200
+     getNumberColsData = 40
+     Percentage_OV_Jump = 200
+     thresold = 50
+     money_margin = 20000
+     Diff_IN_OI_OV_Percentage_Above = 200
 
-    #calls local function processOptionVolumeJumpMain
-    call_error = processoptionvoljumpAllStocks(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above)
-    if(Commonapi.info == 1):
-        logging.info('optionvoljumpAllStocks Ended')
+     #calls local function processOptionVolumeJumpMain
+     call_error = processoptionvoljumpAllStocks(getNumberColsData,Percentage_OV_Jump,thresold,money_margin,Diff_IN_OI_OV_Percentage_Above)
+     if(globalheader.info == 1):
+          globalheader.logging.info('optionvoljumpAllStocks Ended')
 
-    #if call_error success from processOptionVolumeJumpMain call generateInputFormatForXLChartMain 
-    
-    if(call_error == globalheader.Success):
-        if(Commonapi.info == 1):
-            logging.info('%s %d', 'processoptionvoljumpAllStocks Success', call_error)
-        xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
-    else:
-        logging.error('%s %d', 'processoptionvoljumpAllStocks Failed', call_error)
+     #if call_error success from processOptionVolumeJumpMain call generateInputFormatForXLChartMain 
+
+     if(call_error == globalheader.Success):
+          if(globalheader.info == 1):
+               globalheader.logging.info('%s %d', 'processoptionvoljumpAllStocks Success', call_error)
+          xlfileinputgenerator.generateInputFormatForXLChartMain(ofilename,ochartfilename,ichartfilename)
+     else:
+          globalheader.logging.error('%s %d', 'processoptionvoljumpAllStocks Failed', call_error)
                     
-    logging.warning('done')                
+     globalheader.logging.warning('done')                
 
 

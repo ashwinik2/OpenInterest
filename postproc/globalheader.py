@@ -1,3 +1,4 @@
+#call error headers
 Success = 0
 STOCK_CSV_DBASE_FILE_NOT_EXIST = 1
 STOCK_OPT_EXPDATE_DOES_NOT_EXIST = 2
@@ -18,4 +19,11 @@ STOCK_VOL_UNAVAILABLE = 16
 STOCK_PRICE_UNAVAILABLE = 17
 STOCK_OPENINT_PRICE_OPTPRICE_UNAVAILABLE =18
 OI_PERCENTAGE_JUMP_OUTPUT_DOESNOT_CREATED = 19
+LOCAL_CSV_FILE_DOESNOT_EXIST = 20
+
+#logging headers
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+debug = 0
+info = 0
 
